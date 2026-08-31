@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id // Clerk userId
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hourlyRates HourlyRate[]
+  workShifts  WorkShift[]
+  payslips    Payslip[]
+}
+
+model HourlyRate {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rate      Float    // taux horaire en euros
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model WorkShift {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  startDate DateTime 
+  startTime DateTime 
+  endDate   DateTime 
+  endTime   DateTime 
+
+  breakMinutes Int @default(0) 
+
+  totalHours   Float 
+  estimatedPay Float 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, startDate])
+}
+
+model Payslip {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  year  Int
+  month Int? // optionnel
+
+  fileName String
+  fileUrl  String
+
+  uploadedAt DateTime @default(now())
+
+  @@index([userId, year])
+}
