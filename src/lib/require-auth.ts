@@ -4,6 +4,6 @@ import { redirect } from "next/navigation";
 
 export async function requireAuth() {
     const { userId } = await auth();
-    if (!userId) redirect("/sign-in");
+    if (!userId) redirect("/sign-in?redirect_url=/settings");
     return userId;
 }
