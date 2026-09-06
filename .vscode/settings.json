@@ -1,0 +1,5 @@
+{
+  "typescript.suggest.autoImports": true,
+  "javascript.suggest.autoImports": true,
+  "prisma.pinToPrisma6": true
+}
