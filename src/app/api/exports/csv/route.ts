@@ -1,0 +1,60 @@
+import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+
+export const dynamic = "force-dynamic";
+
+function fmtDate(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+}
+
+function fmtTime(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function csvCell(v: string | number) {
+  const s = String(v).replace(/"/g, '""');
+  return `"${s}"`;
+}
+
+export async function GET(req: Request) {
+  const { userId } = await auth();
+  if (!userId) return new Response("Non authentifié", { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const yearParam = searchParams.get("year");
+  const year = yearParam ? Number(yearParam) : undefined;
+  const where =
+    year && Number.isInteger(year)
+      ? { userId, startDate: { gte: new Date(year, 0, 1), lt: new Date(year + 1, 0, 1) } }
+      : { userId };
+
+  const shifts = await prisma.workShift.findMany({
+    where,
+    orderBy: { startDate: "asc" },
+  });
+
+  const header = ["Date", "Heure début", "Heure fin", "Nuit (+1j)", "Pause (min)", "Heures totales", "Paie estimée (€)"];
+  const lines = shifts.map((s) =>
+    [
+      csvCell(fmtDate(s.startDate)),
+      csvCell(fmtTime(s.startTime)),
+      csvCell(fmtTime(s.endTime)),
+      csvCell(s.endDate.getTime() !== s.startDate.getTime() ? "oui" : "non"),
+      csvCell(s.breakMinutes),
+      csvCell(s.totalHours.toFixed(2).replace(".", ",")),
+      csvCell(s.estimatedPay.toFixed(2).replace(".", ",")),
+    ].join(";")
+  );
+
+  const csv = "﻿" + [header.join(";"), ...lines].join("\r\n");
+  const suffix = year && Number.isInteger(year) ? `-${year}` : "-toutes";
+  return new Response(csv, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="vacations${suffix}.csv"`,
+      "Cache-Control": "no-store",
+    },
+  });
+}

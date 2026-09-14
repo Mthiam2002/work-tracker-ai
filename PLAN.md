@@ -8,6 +8,7 @@ Application web personnelle (NextJS) permettant de :
 - Visualiser un calendrier mensuel des vacations
 - Consulter un tableau de bord avec les totaux (heures + salaire) par semaine/mois/année
 - Stocker et retrouver ses bulletins de paie (upload, triés par année)
+- Rappeler le pointage en cas d'oubli (bannière in-app si aucune vacation depuis 7 jours)
 
 Usage personnel (mono-utilisateur pour l'instant), authentification via Clerk.
 
@@ -106,6 +107,10 @@ Un seul taux "courant" pour la v1 (pas d'historique).
 1. `/payslips/upload` → upload PDF vers Vercel Blob, saisie de l'année/mois associé
 2. `/payslips` → liste groupée par année, téléchargement/consultation
 
+### E. Rappels de pointage
+1. v1 (in-app) : bannière sur `/dashboard` si aucune vacation depuis 7 jours (ou jamais pointé), avec CTA vers `/shifts/new`
+2. v2 (optionnel) : e-mail automatique via cron quotidien + fournisseur (ex. Resend)
+
 ---
 
 ## 6. Étapes de développement (ordre recommandé)
@@ -121,6 +126,8 @@ Un seul taux "courant" pour la v1 (pas d'historique).
 9. **Bulletins de paie** : upload (Vercel Blob) + liste triée par année
 10. **Thème** : mode sombre/clair
 11. **Déploiement** : configuration Vercel + variables d'environnement (Clerk, Neon, Blob)
+12. **Rappels** : bannière in-app d'oubli de pointage (seuil 7 jours)
+13. **Export** : export CSV des vacations seules (date, horaires, nuit, pause, heures, paie) via page dédiée `/exports` + API `/api/exports/csv` (PDF en option future)
 
 ---
 
@@ -132,6 +139,7 @@ Un seul taux "courant" pour la v1 (pas d'historique).
 - Pas de Sentry/monitoring en v1
 - Pas de règle de rétention/taille de fichiers pour les bulletins
 - Stockage fichiers via Vercel Blob (à confirmer si préférence pour UploadThing)
+- Rappels v1 = bannière in-app uniquement (seuil 7 jours sans vacation), aucun envoi externe (e-mail/push en v2)
 
 ## 8. Risques / points à surveiller
 

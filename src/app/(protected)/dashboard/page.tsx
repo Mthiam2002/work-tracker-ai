@@ -2,7 +2,8 @@ import { requireAuth } from "@/lib/require-auth";
 import { DeleteShiftButton } from "@/components/DeleteShiftButton";
 import { SignOutButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { getDashboardData } from "./dashboard-queries";
+import { getDashboardData, getMonthlyEvolution } from "./dashboard-queries";
+import { MonthlyChart } from "@/components/MonthlyChart";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
@@ -25,13 +26,19 @@ function fmtTime(d: Date) {
 
 export default async function DashboardPage() {
   await requireAuth("/dashboard");
-  const { week, month, year, recent } = await getDashboardData();
+  const [{ week, month, year, recent, daysSinceLastShift }, evolution] = await Promise.all([
+    getDashboardData(),
+    getMonthlyEvolution(6),
+  ]);
 
   const cards = [
     { label: "Cette semaine", ...week },
     { label: "Ce mois-ci", ...month },
     { label: "Cette année", ...year },
   ];
+
+  const daysSince = daysSinceLastShift;
+  const showReminder = daysSince === null || daysSince >= 7;
 
   return (
     <div className="min-h-screen bg-zinc-50 font-sans text-zinc-950 antialiased dark:bg-black dark:text-zinc-50">
@@ -61,6 +68,27 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        {showReminder && (
+          <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:flex-row sm:items-center dark:border-amber-500/30 dark:bg-amber-500/10">
+            <div>
+              <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
+                {daysSince === null
+                  ? "Bienvenue ! Pointe ta première vacation."
+                  : `Aucune vacation depuis ${daysSince} jours — pense à pointer.`}
+              </p>
+              <p className="mt-1 text-sm text-amber-800/80 dark:text-amber-200/70">
+                Un pointage régulier fiabilise tes totaux et ton salaire estimé.
+              </p>
+            </div>
+            <Link
+              href="/shifts/new"
+              className="shrink-0 rounded-full bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-amber-700"
+            >
+              Pointer maintenant
+            </Link>
+          </div>
+        )}
+
         <section className="mt-8 grid gap-4 sm:grid-cols-3">
           {cards.map((c) => (
             <div
@@ -77,7 +105,9 @@ export default async function DashboardPage() {
           ))}
         </section>
 
-        <section className="mt-8 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
+        <MonthlyChart points={evolution} />
+
+        <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold tracking-tight">Dernières vacations</h2>
             <Link href="/calendar" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">

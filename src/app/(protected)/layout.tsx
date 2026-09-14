@@ -7,6 +7,7 @@ const nav = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/calendar", label: "Calendrier" },
   { href: "/payslips", label: "Bulletins" },
+  { href: "/exports", label: "Exports" },
   { href: "/settings", label: "Paramètres" },
 ];
 
