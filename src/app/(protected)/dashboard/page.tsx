@@ -45,24 +45,6 @@ export default async function DashboardPage() {
           </div>
           <div className="flex flex-wrap gap-2.5">
             <Link
-              href="/calendar"
-              className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
-            >
-              Calendrier
-            </Link>
-            <Link
-              href="/payslips"
-              className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
-            >
-              Bulletins
-            </Link>
-            <Link
-              href="/settings"
-              className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
-            >
-              Paramètres
-            </Link>
-            <Link
               href="/shifts/new"
               className="rounded-full bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700"
             >
@@ -127,8 +109,14 @@ export default async function DashboardPage() {
                       {hoursLabel(s.totalHours)}
                     </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-3">
+                  <div className="flex shrink-0 items-center gap-2">
                     <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{eur.format(s.estimatedPay)}</span>
+                    <Link
+                      href={`/shifts/${s.id}/edit`}
+                      className="rounded-full px-3 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-500/10"
+                    >
+                      Modifier
+                    </Link>
                     <DeleteShiftButton id={s.id} />
                   </div>
                 </li>

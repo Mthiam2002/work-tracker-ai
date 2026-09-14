@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react"
-import { createWorkShift } from "./shifts-actions";
+import { createWorkShift, updateWorkShift } from "./shifts-actions";
 
 const inputClass =
   "w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[15px] text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-white/10 dark:[color-scheme:dark]";
@@ -15,17 +15,26 @@ function minutesToLabel(total: number | null) {
   return `${h}h${String(m).padStart(2, "0")}`;
 }
 
-export function ShiftForm() {
+export type ShiftInitial = {
+  date: string;
+  startTime: string;
+  endTime: string;
+  endsNextDay: boolean;
+  breakMinutes: string;
+};
+
+export function ShiftForm({ shiftId, initial }: { shiftId?: string; initial?: ShiftInitial }) {
+  const isEdit = Boolean(shiftId);
   const today = useMemo(() => {
     const d = new Date();
     const pad = (n: number) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   }, []);
-  const [date, setDate] = useState(today);
-  const [startTime, setStartTime] = useState("08:00");
-  const [endTime, setEndTime] = useState("20:00");
-  const [endsNextDay, setEndsNextDay] = useState(false);
-  const [breakMinutes, setBreakMinutes] = useState("20");
+  const [date, setDate] = useState(initial?.date ?? today);
+  const [startTime, setStartTime] = useState(initial?.startTime ?? "08:00");
+  const [endTime, setEndTime] = useState(initial?.endTime ?? "20:00");
+  const [endsNextDay, setEndsNextDay] = useState(initial?.endsNextDay ?? false);
+  const [breakMinutes, setBreakMinutes] = useState(initial?.breakMinutes ?? "20");
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
@@ -61,21 +70,28 @@ export function ShiftForm() {
 
     startTransition(async () => {
       try {
-        await createWorkShift({ date, startTime, endTime, endsNextDay, breakMinutes: parsedBreak });
-        setIsError(false);
-        setMessage(`Vacation créée : ${minutesToLabel(preview) ?? "durée calculée"} (pause incluse).`);
-        setDate(today);
-        setStartTime("08:00");
-        setEndTime("20:00");
-        setEndsNextDay(false);
-        setBreakMinutes("0");
+        const payload = { date, startTime, endTime, endsNextDay, breakMinutes: parsedBreak };
+        if (isEdit && shiftId) {
+          await updateWorkShift(shiftId, payload);
+          setIsError(false);
+          setMessage(`Vacation mise à jour : ${minutesToLabel(preview) ?? "durée calculée"} (pause incluse).`);
+        } else {
+          await createWorkShift(payload);
+          setIsError(false);
+          setMessage(`Vacation créée : ${minutesToLabel(preview) ?? "durée calculée"} (pause incluse).`);
+          setDate(today);
+          setStartTime("08:00");
+          setEndTime("20:00");
+          setEndsNextDay(false);
+          setBreakMinutes("0");
+        }
       } catch (error) {
-        console.error("Erreur lors de la création de la vacation :", error);
+        console.error("Erreur lors de l'enregistrement de la vacation :", error);
         setIsError(true);
         setMessage(
           error instanceof Error
             ? error.message
-            : "Une erreur est survenue lors de la création de la vacation."
+            : "Une erreur est survenue lors de l'enregistrement de la vacation."
         );
       }
     });
@@ -153,7 +169,7 @@ export function ShiftForm() {
           disabled={isPending}
           className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-blue-600 px-7 text-[15px] font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
         >
-          {isPending ? "Création en cours..." : "Créer la vacation"}
+          {isPending ? (isEdit ? "Mise à jour..." : "Création en cours...") : (isEdit ? "Mettre à jour" : "Créer la vacation")}
         </button>
 
         {message && (

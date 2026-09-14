@@ -16,11 +16,7 @@ const features = [
   {
     title: "Salaire estimé",
     text: "Heures × ton taux horaire courant, basé sur le SMIC et modifiable à tout moment.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-5 w-5">
-        <path d="M12 2v20M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2 2.6 5 3.2 5 1.4 5 3.3-2.2 3-5 3-5-1.1-5-3" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: <span className="text-base font-bold">€</span>,
   },
   {
     title: "Calendrier & dashboard",

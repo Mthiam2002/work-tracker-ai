@@ -138,8 +138,16 @@ export default async function CalendarPage({
                       {s.endDate.getTime() !== s.startDate.getTime() ? " (+1j)" : ""}
                     </span>
                   </p>
-                  <span className="shrink-0 text-sm font-semibold text-blue-600 dark:text-blue-400">
-                    {hoursLabel(s.totalHours)} · {eur.format(s.estimatedPay)}
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                      {hoursLabel(s.totalHours)} · {eur.format(s.estimatedPay)}
+                    </span>
+                    <Link
+                      href={`/shifts/${s.id}/edit`}
+                      className="rounded-full px-3 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-500/10"
+                    >
+                      Modifier
+                    </Link>
                   </span>
                 </li>
               ))}

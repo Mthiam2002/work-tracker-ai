@@ -13,10 +13,7 @@ type CreateShiftInput = {
     breakMinutes: number;
 };
 
-export async function createWorkShift(input: CreateShiftInput) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Utilisateur non authentifié");
-
+function computeShift(input: CreateShiftInput) {
     const { date, startTime, endTime, endsNextDay, breakMinutes } = input;
 
     if (!date || !startTime || !endTime) {
@@ -51,7 +48,14 @@ export async function createWorkShift(input: CreateShiftInput) {
         throw new Error("La durée totale de la vacation doit être positive.");
     }
 
-    const totalHours = diffMinutes / 60;
+    return { startDate, startDateTime, endDate, endDateTime, totalHours: diffMinutes / 60 };
+}
+
+export async function createWorkShift(input: CreateShiftInput) {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Utilisateur non authentifié");
+
+    const { startDate, startDateTime, endDate, endDateTime, totalHours } = computeShift(input);
     const hourlyRate = await getHourlyRate();
     const estimatedPay = totalHours * hourlyRate;
 
@@ -62,13 +66,47 @@ export async function createWorkShift(input: CreateShiftInput) {
             startTime: startDateTime,
             endDate,
             endTime: endDateTime,
-            breakMinutes,
+            breakMinutes: input.breakMinutes,
             totalHours,
             estimatedPay,
         },
     });
 
     revalidatePath("/shifts");
+    revalidatePath("/dashboard");
+    revalidatePath("/calendar");
+}
+
+export async function getWorkShift(id: string) {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Utilisateur non authentifié");
+    return prisma.workShift.findFirst({ where: { id, userId } });
+}
+
+export async function updateWorkShift(id: string, input: CreateShiftInput) {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Utilisateur non authentifié");
+
+    const existing = await prisma.workShift.findFirst({ where: { id, userId } });
+    if (!existing) throw new Error("Vacation introuvable.");
+
+    const { startDate, startDateTime, endDate, endDateTime, totalHours } = computeShift(input);
+    const hourlyRate = await getHourlyRate();
+    const estimatedPay = totalHours * hourlyRate;
+
+    await prisma.workShift.update({
+        where: { id },
+        data: {
+            startDate,
+            startTime: startDateTime,
+            endDate,
+            endTime: endDateTime,
+            breakMinutes: input.breakMinutes,
+            totalHours,
+            estimatedPay,
+        },
+    });
+
     revalidatePath("/dashboard");
     revalidatePath("/calendar");
 }

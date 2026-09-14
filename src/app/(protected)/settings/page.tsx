@@ -35,10 +35,8 @@ export default async function SettingsPage() {
         <div className="mt-8 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-5 w-5">
-                  <path d="M12 2v20M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2 2.6 5 3.2 5 1.4 5 3.3-2.2 3-5 3-5-1.1-5-3" strokeLinecap="round" />
-                </svg>
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-lg font-bold text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
+                €
               </span>
               <div>
                 <h2 className="text-base font-semibold tracking-tight">Taux horaire</h2>
