@@ -51,6 +51,12 @@ export default async function DashboardPage() {
               Calendrier
             </Link>
             <Link
+              href="/payslips"
+              className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+            >
+              Bulletins
+            </Link>
+            <Link
               href="/settings"
               className="rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
             >
