@@ -49,8 +49,8 @@ Un seul taux "courant" pour la v1 (pas d'historique).
 - `startTime` (time)
 - `endDate` (date) — jour de fin (peut différer de startDate si vacation de nuit)
 - `endTime` (time)
-- `breakMinutes` (int, optionnel) — pause déduite
-- `totalHours` (decimal, calculé) — durée effective
+- `breakMinutes` (int, optionnel) — pause informative, rémunérée donc NON déduite
+- `totalHours` (decimal, calculé) — durée brute (endDateTime - startDateTime, pause incluse car rémunérée)
 - `estimatedPay` (decimal, calculé) — totalHours × taux courant au moment du calcul
 - `createdAt` / `updatedAt`
 
@@ -63,7 +63,7 @@ Un seul taux "courant" pour la v1 (pas d'historique).
 - `fileName` (string)
 - `uploadedAt`
 
-**Assomption (A2)** : `totalHours` est calculé automatiquement à l'enregistrement (endDateTime - startDateTime - breakMinutes), pas besoin de le stocker en dur si vous préférez recalculer à la volée — mais le stocker facilite les agrégations du tableau de bord.
+**Assomption (A2)** : `totalHours` est calculé automatiquement à l'enregistrement (endDateTime - startDateTime, pause incluse car rémunérée), pas besoin de le stocker en dur si vous préférez recalculer à la volée — mais le stocker facilite les agrégations du tableau de bord.
 
 ---
 
@@ -127,7 +127,7 @@ Un seul taux "courant" pour la v1 (pas d'historique).
 ## 7. Assumptions retenues
 
 - Édition/suppression directe des pointages, sans historique d'audit
-- Calcul salaire v1 = heures × taux horaire, sans majoration nuit/dimanche/férié
+- Calcul salaire v1 = heures brutes (pause incluse, rémunérée) × taux horaire, sans majoration nuit/dimanche/férié
 - Un seul taux horaire courant, pas d'historique de taux
 - Pas de Sentry/monitoring en v1
 - Pas de règle de rétention/taille de fichiers pour les bulletins

@@ -34,15 +34,19 @@ model WorkShift {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  startDate DateTime 
-  startTime DateTime 
-  endDate   DateTime 
-  endTime   DateTime 
+  // Jour civil à minuit (pour index/calendrier) + datetime complet (date+heure).
+  // startDate/endDate = jours civils (T00:00:00), endDate = +1j si nuit.
+  // startTime/endTime = datetimes réels du pointage.
+  startDate DateTime
+  startTime DateTime
+  endDate   DateTime
+  endTime   DateTime
 
-  breakMinutes Int @default(0) 
+  breakMinutes Int @default(0)
 
-  totalHours   Float 
-  estimatedPay Float 
+  // Calculés à la création : totalHours = endTime-startTime (pause incluse, rémunérée), estimatedPay = totalHours × taux courant.
+  totalHours   Float
+  estimatedPay Float
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

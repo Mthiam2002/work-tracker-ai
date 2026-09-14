@@ -24,11 +24,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="fr">
-        <body>{children}</body>
-      </html>
-    </ClerkProvider>
+    <html lang="fr" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <ClerkProvider>{children}</ClerkProvider>
+      </body>
+    </html>
   )
   
 }
