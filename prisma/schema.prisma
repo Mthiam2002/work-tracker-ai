@@ -25,6 +25,9 @@ model User {
   reminderThreshold Int       @default(7) // jours sans vacation avant rappel
   lastReminderAt    DateTime?
 
+  // Conversion brut → net (part salariée conservée, ex 0.77)
+  netRatio Float @default(0.77)
+
   hourlyRates HourlyRate[]
   workShifts  WorkShift[]
   payslips    Payslip[]

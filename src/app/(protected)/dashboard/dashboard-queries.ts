@@ -90,3 +90,62 @@ export async function getMonthShifts(year: number, month: number) {
     orderBy: { startDate: "asc" },
   });
 }
+
+export type ShiftItem = {
+  id: string;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+  breakMinutes: number;
+  totalHours: number;
+  estimatedPay: number;
+};
+
+export type ShiftsPage = { items: ShiftItem[]; total: number; page: number; pages: number };
+
+/** Recherche (date, horaires, heures, paie) + pagination, tri décroissant. */
+export async function getShiftsPage({ q = "", page = 1, pageSize = 5 }: { q?: string; page?: number; pageSize?: number }): Promise<ShiftsPage> {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Utilisateur non authentifié");
+  const safePage = Math.max(1, Math.floor(page) || 1);
+  const safeSize = Math.min(20, Math.max(1, Math.floor(pageSize) || 5));
+
+  const all = await prisma.workShift.findMany({
+    where: { userId },
+    orderBy: { startDate: "desc" },
+    take: 500,
+  });
+
+  const needle = q.trim().toLowerCase();
+  const filtered = needle
+    ? all.filter((s) => {
+        const hay = [
+          new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(s.startDate),
+          `${String(s.startDate.getUTCDate()).padStart(2, "0")}/${String(s.startDate.getUTCMonth() + 1).padStart(2, "0")}/${s.startDate.getUTCFullYear()}`,
+          new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(s.startTime),
+          new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(s.endTime),
+          String(s.totalHours),
+          String(s.estimatedPay),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return hay.includes(needle);
+      })
+    : all;
+
+  const total = filtered.length;
+  const pages = Math.max(1, Math.ceil(total / safeSize));
+  const items = filtered.slice((safePage - 1) * safeSize, safePage * safeSize).map((s) => ({
+    id: s.id,
+    startDate: s.startDate.toISOString(),
+    startTime: s.startTime.toISOString(),
+    endDate: s.endDate.toISOString(),
+    endTime: s.endTime.toISOString(),
+    breakMinutes: s.breakMinutes,
+    totalHours: s.totalHours,
+    estimatedPay: s.estimatedPay,
+  }));
+
+  return { items, total, page: Math.min(safePage, pages), pages };
+}

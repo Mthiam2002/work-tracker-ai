@@ -36,14 +36,13 @@ export function ReminderSettingsForm({ initial }: { initial: { enabled: boolean;
           max="30"
           value={threshold}
           onChange={(e) => setThreshold(e.target.value)}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[15px] outline-none focus:border-blue-500 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[15px] outline-none focus:border-blue-500 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-white/10"
         />
       </div>
       <button type="submit" disabled={isPending} className="flex h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black">
         {isPending ? "Enregistrement..." : "Enregistrer"}
       </button>
       {message && <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">{message}</p>}
-      <p className="text-xs text-zinc-500">Nécessite RESEND_API_KEY côté serveur. Envoi quotidien à 8h via cron Vercel.</p>
     </form>
   );
 }

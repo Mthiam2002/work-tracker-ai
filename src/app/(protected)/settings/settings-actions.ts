@@ -64,6 +64,14 @@ export async function getRateHistory(limit = 20) {
   });
 }
 
+/** Ratio brut → net de l'utilisateur (défaut 0.77). */
+export async function getNetRatio() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Utilisateur non authentifié");
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { netRatio: true } });
+  return user?.netRatio ?? 0.77;
+}
+
 /** Nouveau taux = nouvelle ligne d'historique (le passé est préservé). */
 export async function updateHourlyRate(newRate: number) {
   const { userId } = await auth();
@@ -94,6 +102,7 @@ export async function getUserSettings() {
     nightEnd: user.nightEnd,
     reminderEnabled: user.reminderEnabled,
     reminderThreshold: user.reminderThreshold,
+    netRatio: user.netRatio,
   };
 }
 
@@ -133,4 +142,21 @@ export async function updateReminderSettings(input: { enabled: boolean; threshol
     data: { reminderEnabled: input.enabled, reminderThreshold: input.threshold },
   });
   revalidatePath("/settings");
+}
+
+/** Ratio brut → net (part conservée, ex 0.77). Accepté : 0.50 à 0.95. */
+export async function updateNetRatio(ratio: number) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Utilisateur non authentifié");
+  if (!Number.isFinite(ratio) || ratio < 0.5 || ratio > 0.95) {
+    throw new Error("Ratio invalide (entre 0,50 et 0,95).");
+  }
+  await ensureUser(userId);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { netRatio: ratio },
+  });
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+  revalidatePath("/calendar");
 }

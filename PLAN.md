@@ -127,7 +127,9 @@ Un seul taux "courant" pour la v1 (pas d'historique).
 10. **Thème** : mode sombre/clair
 11. **Déploiement** : configuration Vercel + variables d'environnement (Clerk, Neon, Blob)
 12. **Rappels** : bannière in-app d'oubli de pointage (seuil 7 jours)
-13. **Export** : export CSV des vacations seules (date, horaires, nuit, pause, heures, paie) via page dédiée `/exports` + API `/api/exports/csv` (PDF en option future)
+13. **Export** : export CSV des vacations seules (date, horaires, nuit, pause, heures, paie brute + nette) via page dédiée `/exports` + API `/api/exports/csv` ; récap PDF mensuel via `/api/exports/pdf`
+14. **Net configurable** : ratio brut → net modifiable dans `/settings` (`User.netRatio`, défaut 0.77), utilisé partout (dashboard, calendrier, exports)
+15. **Recherche vacations** : composant `ShiftsExplorer` sur `/dashboard` (recherche texte + pagination 5/page via `getShiftsPage`)
 
 ---
 

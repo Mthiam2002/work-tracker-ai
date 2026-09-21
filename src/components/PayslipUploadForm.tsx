@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { uploadPayslip } from "@/app/(protected)/payslips/payslips-actions";
 
 const inputClass =
-  "w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[15px] text-zinc-950 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:[color-scheme:dark]";
+  "w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[15px] text-zinc-950 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-white/10 dark:[color-scheme:dark]";
 
 export function PayslipUploadForm() {
   const currentYear = new Date().getFullYear();

@@ -19,6 +19,13 @@ export default async function ExportsPage() {
   await requireAuth("/exports");
   const years = await getShiftYears();
 
+  const now = new Date();
+  const lastMonths = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1 };
+  });
+  const pdfLabel = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" });
+
   return (
     <div className="min-h-screen bg-zinc-50 font-sans text-zinc-950 antialiased dark:bg-black dark:text-zinc-50">
       <main className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -33,14 +40,33 @@ export default async function ExportsPage() {
         </Link>
 
         <div className="mt-6">
-          <h1 className="text-3xl font-semibold tracking-tight">Exports CSV</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Exports</h1>
           <p className="mt-2 max-w-xl text-[15px] leading-7 text-zinc-600 dark:text-zinc-400">
-            Télécharge tes vacations : date, horaires, nuit, pause, heures totales et paie estimée. Format compatible Excel (séparateur point-virgule).
+            CSV compatible Excel pour tes vacations, et récapitulatif PDF mensuel (totaux brut/net + détail).
           </p>
         </div>
 
         <section className="mt-8 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
-          <h2 className="text-base font-semibold tracking-tight">Toutes les vacations</h2>
+          <h2 className="text-base font-semibold tracking-tight">Récap PDF mensuel</h2>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">12 derniers mois, avec totaux brut et net estimé.</p>
+          <ul className="mt-4 space-y-2.5">
+            {lastMonths.map((m) => (
+              <li key={`${m.year}-${m.month}`} className="flex items-center justify-between gap-4 rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-white/5">
+                <span className="text-sm font-semibold capitalize">{pdfLabel.format(new Date(Date.UTC(m.year, m.month - 1, 1)))}</span>
+                <a
+                  href={`/api/exports/pdf?year=${m.year}&month=${m.month}`}
+                  download
+                  className="rounded-full bg-blue-600 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
+                >
+                  PDF
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
+          <h2 className="text-base font-semibold tracking-tight">CSV — toutes les vacations</h2>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Un seul fichier, trié par date croissante.</p>
           <a
             href="/api/exports/csv"
@@ -53,7 +79,7 @@ export default async function ExportsPage() {
 
         {years.length > 0 && (
           <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
-            <h2 className="text-base font-semibold tracking-tight">Par année</h2>
+            <h2 className="text-base font-semibold tracking-tight">CSV par année</h2>
             <ul className="mt-4 space-y-2.5">
               {years.map((y) => (
                 <li key={y} className="flex items-center justify-between gap-4 rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-white/5">

@@ -1,4 +1,5 @@
 import { HourlyRateForm } from "@/components/HourlyRateForm";
+import { NetRatioForm } from "@/components/NetRatioForm";
 import { PremiumsForm } from "@/components/PremiumsForm";
 import { ReminderSettingsForm } from "@/components/ReminderSettingsForm";
 import { requireAuth } from "@/lib/require-auth";
@@ -29,7 +30,7 @@ export default async function SettingsPage() {
 
         <div className="mt-8 grid gap-4">
           <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
-            <h2 className="text-base font-semibold">Taux horaire — actuel : {s.rate.toFixed(2)} €/h brut (≈ {brutToNet(s.rate).toFixed(2)} €/h net)</h2>
+            <h2 className="text-base font-semibold">Taux horaire — actuel : {s.rate.toFixed(2)} €/h brut (≈ {brutToNet(s.rate, s.netRatio).toFixed(2)} €/h net)</h2>
             <div className="mt-4">
               <HourlyRateForm initialRate={s.rate} />
             </div>
@@ -40,12 +41,20 @@ export default async function SettingsPage() {
                   {s.history.map((h) => (
                     <li key={h.id} className="flex justify-between py-2">
                       <span>{new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" }).format(h.validFrom)}</span>
-                      <span className="font-semibold">{h.rate.toFixed(2)} €/h brut (≈ {brutToNet(h.rate).toFixed(2)} €/h net)</span>
+                      <span className="font-semibold">{h.rate.toFixed(2)} €/h brut (≈ {brutToNet(h.rate, s.netRatio).toFixed(2)} €/h net)</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
+          </section>
+
+          <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
+            <h2 className="text-base font-semibold">Conversion brut → net</h2>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Actuellement : net ≈ {(s.netRatio * 100).toFixed(1).replace(".", ",")} % du brut.</p>
+            <div className="mt-4">
+              <NetRatioForm initialRatio={s.netRatio} />
+            </div>
           </section>
 
           <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">

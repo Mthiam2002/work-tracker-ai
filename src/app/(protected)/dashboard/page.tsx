@@ -1,9 +1,10 @@
 import { requireAuth } from "@/lib/require-auth";
-import { DeleteShiftButton } from "@/components/DeleteShiftButton";
 import { SignOutButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { getDashboardData, getMonthlyEvolution } from "./dashboard-queries";
+import { getDashboardData, getMonthlyEvolution, getShiftsPage } from "./dashboard-queries";
 import { MonthlyChart } from "@/components/MonthlyChart";
+import { ShiftsExplorer } from "@/components/ShiftsExplorer";
+import { getNetRatio } from "../settings/settings-actions";
 import { brutToNet } from "@/lib/salary";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
@@ -17,21 +18,13 @@ function hoursLabel(h: number) {
   return `${hh}h${String(mm).padStart(2, "0")}`;
 }
 
-const TZ = "UTC"; // heures murales : affichage identique partout
-
-function fmtDate(d: Date) {
-  return new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short", timeZone: TZ }).format(d);
-}
-
-function fmtTime(d: Date) {
-  return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: TZ }).format(d);
-}
-
 export default async function DashboardPage() {
   await requireAuth("/dashboard");
-  const [{ week, month, year, recent }, evolution] = await Promise.all([
+  const [{ week, month, year, recent }, evolution, netRatio, initialShifts] = await Promise.all([
     getDashboardData(),
     getMonthlyEvolution(6),
+    getNetRatio(),
+    getShiftsPage({ page: 1, pageSize: 5 }),
   ]);
 
   const cards = [
@@ -77,7 +70,7 @@ export default async function DashboardPage() {
               <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{c.label}</p>
               <p className="mt-3 text-3xl font-semibold tracking-tight">{hoursLabel(c.hours)}</p>
               <p className="mt-1 text-lg font-medium text-blue-600 dark:text-blue-400">{eur.format(c.pay)} brut</p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">≈ {eur.format(brutToNet(c.pay))} net</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">≈ {eur.format(brutToNet(c.pay, netRatio))} net</p>
               <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                 {c.count} vacation{c.count > 1 ? "s" : ""}
               </p>
@@ -85,11 +78,11 @@ export default async function DashboardPage() {
           ))}
         </section>
 
-        <MonthlyChart points={evolution} />
+        <MonthlyChart points={evolution} netRatio={netRatio} />
 
         <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold tracking-tight">Dernières vacations</h2>
+            <h2 className="text-base font-semibold tracking-tight">Vacations</h2>
             <Link href="/calendar" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">
               Voir le calendrier →
             </Link>
@@ -108,33 +101,7 @@ export default async function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <ul className="mt-4 divide-y divide-zinc-100 dark:divide-white/10">
-              {recent.map((s) => (
-                <li key={s.id} className="flex items-center justify-between gap-4 py-4">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold capitalize">{fmtDate(s.startDate)}</p>
-                    <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
-                      {fmtTime(s.startTime)} → {fmtTime(s.endTime)}
-                      {s.endDate.getTime() !== s.startDate.getTime() ? " (+1j)" : ""} · pause {s.breakMinutes} min ·{" "}
-                      {hoursLabel(s.totalHours)}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="text-right text-sm font-semibold text-blue-600 dark:text-blue-400">
-                      {eur.format(s.estimatedPay)} brut
-                      <span className="block text-xs font-normal text-zinc-500 dark:text-zinc-400">≈ {eur.format(brutToNet(s.estimatedPay))} net</span>
-                    </span>
-                    <Link
-                      href={`/shifts/${s.id}/edit`}
-                      className="rounded-full px-3 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-500/10"
-                    >
-                      Modifier
-                    </Link>
-                    <DeleteShiftButton id={s.id} />
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <ShiftsExplorer initial={initialShifts} netRatio={netRatio} pageSize={5} />
           )}
         </section>
       </main>
