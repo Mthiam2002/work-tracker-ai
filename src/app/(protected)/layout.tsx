@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ReminderBanner } from "@/components/ReminderBanner";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard" },
@@ -49,6 +50,7 @@ export default async function ProtectedLayout({
             <ThemeToggle />
           </div>
         </header>
+        <ReminderBanner />
         {children}
       </div>
     );

@@ -5,12 +5,12 @@ export const dynamic = "force-dynamic";
 
 function fmtDate(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  return `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}`;
 }
 
 function fmtTime(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 }
 
 function csvCell(v: string | number) {
@@ -27,7 +27,7 @@ export async function GET(req: Request) {
   const year = yearParam ? Number(yearParam) : undefined;
   const where =
     year && Number.isInteger(year)
-      ? { userId, startDate: { gte: new Date(year, 0, 1), lt: new Date(year + 1, 0, 1) } }
+      ? { userId, startDate: { gte: new Date(Date.UTC(year, 0, 1)), lt: new Date(Date.UTC(year + 1, 0, 1)) } }
       : { userId };
 
   const shifts = await prisma.workShift.findMany({
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
     orderBy: { startDate: "asc" },
   });
 
-  const header = ["Date", "Heure début", "Heure fin", "Nuit (+1j)", "Pause (min)", "Heures totales", "Paie estimée (€)"];
+  const header = ["Date", "Heure début", "Heure fin", "Nuit (+1j)", "Pause (min)", "Heures totales", "Taux (€/h)", "Heures nuit", "Heures dimanche", "Heures férié", "Majorations (€)", "Paie estimée (€)"];
   const lines = shifts.map((s) =>
     [
       csvCell(fmtDate(s.startDate)),
@@ -44,6 +44,11 @@ export async function GET(req: Request) {
       csvCell(s.endDate.getTime() !== s.startDate.getTime() ? "oui" : "non"),
       csvCell(s.breakMinutes),
       csvCell(s.totalHours.toFixed(2).replace(".", ",")),
+      csvCell((s.rateSnapshot || 0).toFixed(2).replace(".", ",")),
+      csvCell((s.nightHours || 0).toFixed(2).replace(".", ",")),
+      csvCell((s.sundayHours || 0).toFixed(2).replace(".", ",")),
+      csvCell((s.holidayHours || 0).toFixed(2).replace(".", ",")),
+      csvCell((s.premiumPay || 0).toFixed(2).replace(".", ",")),
       csvCell(s.estimatedPay.toFixed(2).replace(".", ",")),
     ].join(";")
   );

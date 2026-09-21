@@ -18,7 +18,7 @@ export function AuthShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-950 antialiased dark:bg-black dark:text-zinc-50">
+    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-950 antialiased">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
         <Link href="/" className="flex items-center gap-2.5">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white">
@@ -31,14 +31,14 @@ export function AuthShell({
         </Link>
         <Link
           href="/"
-          className="text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
+          className="text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:hover:text-white"
         >
           ← Retour à l&apos;accueil
         </Link>
       </header>
 
       <main className="mx-auto grid w-full max-w-6xl gap-4 px-6 pb-12 lg:grid-cols-[1.05fr_1fr]">
-        <section className="relative hidden overflow-hidden rounded-3xl bg-zinc-950 p-10 text-white lg:flex lg:flex-col lg:justify-between dark:border dark:border-white/10 dark:bg-zinc-950">
+        <section className="relative hidden overflow-hidden rounded-3xl bg-zinc-950 p-10 text-white lg:flex lg:flex-col lg:justify-between dark:border dark:border-white/10">
           <div
             aria-hidden
             className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl"
@@ -57,7 +57,7 @@ export function AuthShell({
           </div>
           <ul className="relative mt-10 space-y-4">
             {points.map((p, i) => (
-              <li key={p.title} className="flex gap-3.5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <li key={p.title} className="flex gap-3.5 rounded-2xl border border-white/10 bg-white/4 p-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold">
                   {i + 1}
                 </span>
@@ -70,10 +70,10 @@ export function AuthShell({
           </ul>
         </section>
 
-        <section className="flex flex-col items-center justify-center rounded-3xl border border-zinc-200/80 bg-white px-6 py-10 sm:px-10 dark:border-white/10 dark:bg-zinc-950">
+        <section className="flex flex-col items-center justify-center rounded-3xl border border-zinc-200/80 bg-white px-6 py-10 sm:px-10">
           <div className="w-full max-w-sm text-center">
             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{subtitle}</p>
+            <p className="mt-2 text-sm leading-6 text-zinc-600">{subtitle}</p>
           </div>
           <div className="mt-6 flex w-full justify-center">{children}</div>
         </section>

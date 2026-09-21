@@ -13,20 +13,33 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Majorations configurables (multiplicateurs, ex: 0.2 = +20%)
+  nightMult   Float @default(0.2)
+  sundayMult  Float @default(0.2)
+  holidayMult Float @default(1.0)
+  nightStart  Int   @default(21) // début fenêtre nuit (heure locale)
+  nightEnd    Int   @default(6) // fin fenêtre nuit
+
+  // Rappels
+  reminderEnabled   Boolean   @default(true)
+  reminderThreshold Int       @default(7) // jours sans vacation avant rappel
+  lastReminderAt    DateTime?
+
   hourlyRates HourlyRate[]
   workShifts  WorkShift[]
   payslips    Payslip[]
 }
 
 model HourlyRate {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   rate      Float    // taux horaire en euros
+  validFrom DateTime @default(now()) // début de validité, historique
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  @@index([userId, validFrom])
 }
 
 model WorkShift {
@@ -44,9 +57,17 @@ model WorkShift {
 
   breakMinutes Int @default(0)
 
-  // Calculés à la création : totalHours = endTime-startTime (pause incluse, rémunérée), estimatedPay = totalHours × taux courant.
+  // Calculés à la création : totalHours = endTime-startTime (pause incluse, rémunérée).
+  // rateSnapshot = taux figé au moment du pointage (historique).
+  // estimatedPay = totalHours × rateSnapshot + premiumPay (majorations nuit/dim/férié).
   totalHours   Float
   estimatedPay Float
+
+  rateSnapshot Float @default(0)
+  nightHours   Float @default(0)
+  sundayHours  Float @default(0)
+  holidayHours Float @default(0)
+  premiumPay   Float @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

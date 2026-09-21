@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getMonthShifts } from "../dashboard/dashboard-queries";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
-const monthLabel = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
+const TZ = "UTC"; // heures murales : affichage identique partout
+const monthLabel = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: TZ });
 
 function hoursLabel(h: number) {
   const totalMin = Math.round(h * 60);
@@ -31,14 +32,14 @@ export default async function CalendarPage({
   const shifts = await getMonthShifts(year, month);
   const byDay = new Map<number, typeof shifts>();
   for (const s of shifts) {
-    const day = s.startDate.getDate();
+    const day = s.startDate.getUTCDate();
     if (!byDay.has(day)) byDay.set(day, []);
     byDay.get(day)!.push(s);
   }
 
-  const first = new Date(year, month - 1, 1);
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const leadBlanks = (first.getDay() + 6) % 7;
+  const first = new Date(Date.UTC(year, month - 1, 1));
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const leadBlanks = (first.getUTCDay() + 6) % 7;
   const cells: (number | null)[] = [
     ...Array<null>(leadBlanks).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
@@ -63,7 +64,7 @@ export default async function CalendarPage({
 
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight capitalize">{monthLabel.format(new Date(year, month - 1, 1))}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight capitalize">{monthLabel.format(new Date(Date.UTC(year, month - 1, 1)))}</h1>
             <p className="mt-2 text-[15px] text-zinc-600 dark:text-zinc-400">
               {shifts.length} vacation{shifts.length > 1 ? "s" : ""} · {hoursLabel(monthHours)} · {eur.format(monthPay)}
             </p>
@@ -130,11 +131,11 @@ export default async function CalendarPage({
                 <li key={s.id} className="flex items-center justify-between gap-4 py-3">
                   <p className="text-sm">
                     <span className="font-semibold">
-                      {new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(s.startDate)}
+                      {new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", timeZone: TZ }).format(s.startDate)}
                     </span>{" "}
                     <span className="text-zinc-500 dark:text-zinc-400">
-                      · {new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(s.startTime)} →{" "}
-                      {new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(s.endTime)}
+                      · {new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: TZ }).format(s.startTime)} →{" "}
+                      {new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: TZ }).format(s.endTime)}
                       {s.endDate.getTime() !== s.startDate.getTime() ? " (+1j)" : ""}
                     </span>
                   </p>

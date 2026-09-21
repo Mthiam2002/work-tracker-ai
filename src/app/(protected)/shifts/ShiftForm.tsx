@@ -23,6 +23,12 @@ export type ShiftInitial = {
   breakMinutes: string;
 };
 
+const TEMPLATES = [
+  { label: "Jour 7h-19h", start: "07:00", end: "19:00", night: false },
+  { label: "Nuit 19h-7h", start: "19:00", end: "07:00", night: true },
+  { label: "Nuit 20h-8h", start: "20:00", end: "08:00", night: true },
+];
+
 export function ShiftForm({ shiftId, initial }: { shiftId?: string; initial?: ShiftInitial }) {
   const isEdit = Boolean(shiftId);
   const today = useMemo(() => {
@@ -35,9 +41,17 @@ export function ShiftForm({ shiftId, initial }: { shiftId?: string; initial?: Sh
   const [endTime, setEndTime] = useState(initial?.endTime ?? "20:00");
   const [endsNextDay, setEndsNextDay] = useState(initial?.endsNextDay ?? false);
   const [breakMinutes, setBreakMinutes] = useState(initial?.breakMinutes ?? "20");
+  const [recalcRate, setRecalcRate] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+
+  function applyTemplate(t: (typeof TEMPLATES)[number]) {
+    setDate(today);
+    setStartTime(t.start);
+    setEndTime(t.end);
+    setEndsNextDay(t.night);
+  }
 
   const preview = useMemo(() => {
     if (!date || !startTime || !endTime) return null;
@@ -70,7 +84,7 @@ export function ShiftForm({ shiftId, initial }: { shiftId?: string; initial?: Sh
 
     startTransition(async () => {
       try {
-        const payload = { date, startTime, endTime, endsNextDay, breakMinutes: parsedBreak };
+        const payload = { date, startTime, endTime, endsNextDay, breakMinutes: parsedBreak, recalcRate };
         if (isEdit && shiftId) {
           await updateWorkShift(shiftId, payload);
           setIsError(false);
@@ -105,6 +119,20 @@ export function ShiftForm({ shiftId, initial }: { shiftId?: string; initial?: Sh
         onSubmit={handleSubmit}
         className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950"
       >
+        {!isEdit && (
+          <div className="mb-5 flex flex-wrap gap-2">
+            {TEMPLATES.map((t) => (
+              <button
+                key={t.label}
+                type="button"
+                onClick={() => applyTemplate(t)}
+                className="rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm font-medium transition hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-500/40 dark:hover:bg-blue-500/10 dark:hover:text-blue-300"
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="date" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -163,6 +191,23 @@ export function ShiftForm({ shiftId, initial }: { shiftId?: string; initial?: Sh
             className={inputClass}
           />
         </div>
+
+        {isEdit && (
+          <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm dark:border-white/10 dark:bg-white/5">
+            <input
+              type="checkbox"
+              checked={recalcRate}
+              onChange={(e) => setRecalcRate(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-blue-600"
+            />
+            <span>
+              <span className="block font-medium">Recalculer au taux actuel</span>
+              <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                Décoché = garde le taux d&apos;origine (historique préservé).
+              </span>
+            </span>
+          </label>
+        )}
 
         <button
           type="submit"

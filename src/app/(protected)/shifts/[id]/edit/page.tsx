@@ -6,12 +6,12 @@ import { getWorkShift } from "../../shifts-actions";
 
 function toDateInput(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
 function toTimeInput(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 }
 
 export default async function EditShiftPage({ params }: { params: Promise<{ id: string }> }) {
@@ -52,7 +52,7 @@ export default async function EditShiftPage({ params }: { params: Promise<{ id: 
         <div className="mt-6">
           <h1 className="text-3xl font-semibold tracking-tight">Modifier la vacation</h1>
           <p className="mt-2 max-w-xl text-[15px] leading-7 text-zinc-600 dark:text-zinc-400">
-            Ajuste les horaires ou la pause. La durée et le salaire estimé sont recalculés avec ton taux courant.
+            Ajuste les horaires ou la pause. Le taux d&apos;origine est conservé sauf si tu coches « Recalculer ».
           </p>
         </div>
 

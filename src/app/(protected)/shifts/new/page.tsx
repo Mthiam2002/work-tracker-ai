@@ -1,7 +1,21 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ShiftForm } from "../ShiftForm";
+import { duplicateLastShiftAsToday, getLastShift } from "../shifts-actions";
 
-export default function NewShiftPage() {
+function fmtTime(d: Date) {
+  return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(d);
+}
+
+export default async function NewShiftPage() {
+  const last = await getLastShift().catch(() => null);
+
+  async function duplicateAction() {
+    "use server";
+    await duplicateLastShiftAsToday();
+    redirect("/dashboard");
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 font-sans text-zinc-950 antialiased dark:bg-black dark:text-zinc-50">
       <main className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -9,9 +23,6 @@ export default function NewShiftPage() {
           href="/dashboard"
           className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-white/10"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-            <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
           Retour au tableau de bord
         </Link>
 
@@ -22,9 +33,20 @@ export default function NewShiftPage() {
           </p>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight">Ajouter une vacation</h1>
           <p className="mt-2 max-w-xl text-[15px] leading-7 text-zinc-600 dark:text-zinc-400">
-            Renseigne ta journée de 12h, de jour comme de nuit. La durée et le salaire estimé sont calculés automatiquement.
+            Modèles 1-clic, majorations nuit / dimanche / férié calculées automatiquement.
           </p>
         </div>
+
+        {last && (
+          <form action={duplicateAction} className="mt-6 flex flex-wrap items-center gap-3 rounded-3xl border border-zinc-200/80 bg-white p-4 text-sm dark:border-white/10 dark:bg-zinc-950">
+            <span className="text-zinc-600 dark:text-zinc-400">
+              Dernière : {fmtTime(last.startTime)} → {fmtTime(last.endTime)} · {Math.round(last.totalHours)}h
+            </span>
+            <button type="submit" className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-white dark:text-black">
+              Reprendre aujourd&apos;hui
+            </button>
+          </form>
+        )}
 
         <div className="mt-8">
           <ShiftForm />

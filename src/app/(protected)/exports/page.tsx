@@ -11,7 +11,7 @@ async function getShiftYears(): Promise<number[]> {
     select: { startDate: true },
     orderBy: { startDate: "desc" },
   });
-  const years = new Set(rows.map((r) => r.startDate.getFullYear()));
+  const years = new Set(rows.map((r) => r.startDate.getUTCFullYear()));
   return [...years].sort((a, b) => b - a);
 }
 

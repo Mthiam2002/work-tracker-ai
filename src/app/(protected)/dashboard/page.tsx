@@ -16,17 +16,19 @@ function hoursLabel(h: number) {
   return `${hh}h${String(mm).padStart(2, "0")}`;
 }
 
+const TZ = "UTC"; // heures murales : affichage identique partout
+
 function fmtDate(d: Date) {
-  return new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short" }).format(d);
+  return new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short", timeZone: TZ }).format(d);
 }
 
 function fmtTime(d: Date) {
-  return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(d);
+  return new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: TZ }).format(d);
 }
 
 export default async function DashboardPage() {
   await requireAuth("/dashboard");
-  const [{ week, month, year, recent, daysSinceLastShift }, evolution] = await Promise.all([
+  const [{ week, month, year, recent }, evolution] = await Promise.all([
     getDashboardData(),
     getMonthlyEvolution(6),
   ]);
@@ -36,9 +38,6 @@ export default async function DashboardPage() {
     { label: "Ce mois-ci", ...month },
     { label: "Cette année", ...year },
   ];
-
-  const daysSince = daysSinceLastShift;
-  const showReminder = daysSince === null || daysSince >= 7;
 
   return (
     <div className="min-h-screen bg-zinc-50 font-sans text-zinc-950 antialiased dark:bg-black dark:text-zinc-50">
@@ -67,27 +66,6 @@ export default async function DashboardPage() {
             </SignOutButton>
           </div>
         </div>
-
-        {showReminder && (
-          <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-3xl border border-amber-200 bg-amber-50 p-6 sm:flex-row sm:items-center dark:border-amber-500/30 dark:bg-amber-500/10">
-            <div>
-              <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
-                {daysSince === null
-                  ? "Bienvenue ! Pointe ta première vacation."
-                  : `Aucune vacation depuis ${daysSince} jours — pense à pointer.`}
-              </p>
-              <p className="mt-1 text-sm text-amber-800/80 dark:text-amber-200/70">
-                Un pointage régulier fiabilise tes totaux et ton salaire estimé.
-              </p>
-            </div>
-            <Link
-              href="/shifts/new"
-              className="shrink-0 rounded-full bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-amber-700"
-            >
-              Pointer maintenant
-            </Link>
-          </div>
-        )}
 
         <section className="mt-8 grid gap-4 sm:grid-cols-3">
           {cards.map((c) => (
