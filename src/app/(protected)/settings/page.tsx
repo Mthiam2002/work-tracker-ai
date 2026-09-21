@@ -2,6 +2,7 @@ import { HourlyRateForm } from "@/components/HourlyRateForm";
 import { PremiumsForm } from "@/components/PremiumsForm";
 import { ReminderSettingsForm } from "@/components/ReminderSettingsForm";
 import { requireAuth } from "@/lib/require-auth";
+import { brutToNet } from "@/lib/salary";
 import Link from "next/link";
 import { getUserSettings } from "./settings-actions";
 
@@ -28,7 +29,7 @@ export default async function SettingsPage() {
 
         <div className="mt-8 grid gap-4">
           <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
-            <h2 className="text-base font-semibold">Taux horaire — actuel : {s.rate.toFixed(2)} €/h</h2>
+            <h2 className="text-base font-semibold">Taux horaire — actuel : {s.rate.toFixed(2)} €/h brut (≈ {brutToNet(s.rate).toFixed(2)} €/h net)</h2>
             <div className="mt-4">
               <HourlyRateForm initialRate={s.rate} />
             </div>
@@ -39,7 +40,7 @@ export default async function SettingsPage() {
                   {s.history.map((h) => (
                     <li key={h.id} className="flex justify-between py-2">
                       <span>{new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" }).format(h.validFrom)}</span>
-                      <span className="font-semibold">{h.rate.toFixed(2)} €/h</span>
+                      <span className="font-semibold">{h.rate.toFixed(2)} €/h brut (≈ {brutToNet(h.rate).toFixed(2)} €/h net)</span>
                     </li>
                   ))}
                 </ul>

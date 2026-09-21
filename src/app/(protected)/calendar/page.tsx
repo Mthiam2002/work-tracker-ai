@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/require-auth";
 import Link from "next/link";
 import { getMonthShifts } from "../dashboard/dashboard-queries";
+import { brutToNet } from "@/lib/salary";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 const TZ = "UTC"; // heures murales : affichage identique partout
@@ -66,7 +67,7 @@ export default async function CalendarPage({
           <div>
             <h1 className="text-3xl font-semibold tracking-tight capitalize">{monthLabel.format(new Date(Date.UTC(year, month - 1, 1)))}</h1>
             <p className="mt-2 text-[15px] text-zinc-600 dark:text-zinc-400">
-              {shifts.length} vacation{shifts.length > 1 ? "s" : ""} · {hoursLabel(monthHours)} · {eur.format(monthPay)}
+              {shifts.length} vacation{shifts.length > 1 ? "s" : ""} · {hoursLabel(monthHours)} · {eur.format(monthPay)} brut (≈ {eur.format(brutToNet(monthPay))} net)
             </p>
           </div>
           <div className="flex gap-2.5">
@@ -141,7 +142,7 @@ export default async function CalendarPage({
                   </p>
                   <span className="flex shrink-0 items-center gap-2">
                     <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-                      {hoursLabel(s.totalHours)} · {eur.format(s.estimatedPay)}
+                      {hoursLabel(s.totalHours)} · {eur.format(s.estimatedPay)} brut (≈ {eur.format(brutToNet(s.estimatedPay))} net)
                     </span>
                     <Link
                       href={`/shifts/${s.id}/edit`}

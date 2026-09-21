@@ -4,6 +4,7 @@ import { SignOutButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { getDashboardData, getMonthlyEvolution } from "./dashboard-queries";
 import { MonthlyChart } from "@/components/MonthlyChart";
+import { brutToNet } from "@/lib/salary";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
@@ -75,7 +76,8 @@ export default async function DashboardPage() {
             >
               <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{c.label}</p>
               <p className="mt-3 text-3xl font-semibold tracking-tight">{hoursLabel(c.hours)}</p>
-              <p className="mt-1 text-lg font-medium text-blue-600 dark:text-blue-400">{eur.format(c.pay)}</p>
+              <p className="mt-1 text-lg font-medium text-blue-600 dark:text-blue-400">{eur.format(c.pay)} brut</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">≈ {eur.format(brutToNet(c.pay))} net</p>
               <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                 {c.count} vacation{c.count > 1 ? "s" : ""}
               </p>
@@ -118,7 +120,10 @@ export default async function DashboardPage() {
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{eur.format(s.estimatedPay)}</span>
+                    <span className="text-right text-sm font-semibold text-blue-600 dark:text-blue-400">
+                      {eur.format(s.estimatedPay)} brut
+                      <span className="block text-xs font-normal text-zinc-500 dark:text-zinc-400">≈ {eur.format(brutToNet(s.estimatedPay))} net</span>
+                    </span>
                     <Link
                       href={`/shifts/${s.id}/edit`}
                       className="rounded-full px-3 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-500/10"

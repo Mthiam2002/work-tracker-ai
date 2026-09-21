@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { brutToNet } from "@/lib/salary";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,7 @@ export async function GET(req: Request) {
     orderBy: { startDate: "asc" },
   });
 
-  const header = ["Date", "Heure début", "Heure fin", "Nuit (+1j)", "Pause (min)", "Heures totales", "Taux (€/h)", "Heures nuit", "Heures dimanche", "Heures férié", "Majorations (€)", "Paie estimée (€)"];
+  const header = ["Date", "Heure début", "Heure fin", "Nuit (+1j)", "Pause (min)", "Heures totales", "Taux (€/h)", "Heures nuit", "Heures dimanche", "Heures férié", "Majorations (€)", "Paie brute estimée (€)", "Paie nette estimée (€)"];
   const lines = shifts.map((s) =>
     [
       csvCell(fmtDate(s.startDate)),
@@ -50,6 +51,7 @@ export async function GET(req: Request) {
       csvCell((s.holidayHours || 0).toFixed(2).replace(".", ",")),
       csvCell((s.premiumPay || 0).toFixed(2).replace(".", ",")),
       csvCell(s.estimatedPay.toFixed(2).replace(".", ",")),
+      csvCell(brutToNet(s.estimatedPay).toFixed(2).replace(".", ",")),
     ].join(";")
   );
 
