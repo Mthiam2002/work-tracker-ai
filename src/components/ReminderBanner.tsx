@@ -29,7 +29,7 @@ export async function ReminderBanner() {
           <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
             {daysSince === null
               ? "Bienvenue ! Pointe ta première vacation."
-              : `Aucune vacation depuis ${daysSince} jours — pense à pointer.`}
+              : `Aucune vacation depuis ${daysSince} jour${daysSince > 1 ? "s" : ""} — pense à pointer.`}
           </p>
           <p className="mt-1 text-sm text-amber-800/80 dark:text-amber-200/70">
             Un pointage régulier fiabilise tes totaux et ton salaire estimé.
