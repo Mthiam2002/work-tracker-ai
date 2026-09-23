@@ -1,5 +1,6 @@
 import { HourlyRateForm } from "@/components/HourlyRateForm";
 import { NetRatioForm } from "@/components/NetRatioForm";
+import { PushReminderToggle } from "@/components/PushReminderToggle";
 import { PremiumsForm } from "@/components/PremiumsForm";
 import { ReminderSettingsForm } from "@/components/ReminderSettingsForm";
 import { requireAuth } from "@/lib/require-auth";
@@ -68,6 +69,9 @@ export default async function SettingsPage() {
             <h2 className="text-base font-semibold">Rappels d&apos;oubli</h2>
             <div className="mt-4">
               <ReminderSettingsForm initial={{ enabled: s.reminderEnabled, threshold: s.reminderThreshold }} />
+            </div>
+            <div className="mt-6 border-t border-zinc-100 pt-5 dark:border-white/10">
+              <PushReminderToggle />
             </div>
           </section>
         </div>

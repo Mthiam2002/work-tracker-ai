@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/require-auth";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { BackupRestoreForm } from "@/components/BackupRestoreForm";
 import Link from "next/link";
 
 async function getShiftYears(): Promise<number[]> {
@@ -63,6 +64,21 @@ export default async function ExportsPage() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
+          <h2 className="text-base font-semibold tracking-tight">Sauvegarde complète (JSON)</h2>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Paramètres, historique de taux, vacations et bulletins (métadonnées — les PDF restent dans Blob). La restauration fusionne sans écraser les doublons.
+          </p>
+          <a
+            href="/api/backup"
+            download
+            className="mt-4 inline-flex rounded-full bg-blue-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
+          >
+            Télécharger la sauvegarde (.json)
+          </a>
+          <BackupRestoreForm />
         </section>
 
         <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">

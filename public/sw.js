@@ -17,8 +17,7 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
+self.addEventListener("fetch", (event) => {  const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
@@ -50,4 +49,33 @@ self.addEventListener("fetch", (event) => {
         .catch(() => caches.match(req).then((hit) => hit || caches.match("/")))
     );
   }
+});
+
+// Rappels d'oubli : affiche la notification poussée par /api/reminders/daily.
+self.addEventListener("push", (event) => {
+  let data = { title: "Work Tracker", body: "Pense à pointer ta vacation.", url: "/shifts/new" };
+  try {
+    if (event.data) data = { ...data, ...event.data.json() };
+  } catch {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      data: { url: data.url },
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/shifts/new";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if (new URL(client.url).pathname === url) return client.focus();
+      }
+      return self.clients.openWindow(url);
+    })
+  );
 });

@@ -130,6 +130,9 @@ Un seul taux "courant" pour la v1 (pas d'historique).
 13. **Export** : export CSV des vacations seules (date, horaires, nuit, pause, heures, paie brute + nette) via page dédiée `/exports` + API `/api/exports/csv` ; récap PDF mensuel via `/api/exports/pdf`
 14. **Net configurable** : ratio brut → net modifiable dans `/settings` (`User.netRatio`, défaut 0.77), utilisé partout (dashboard, calendrier, exports)
 15. **Recherche vacations** : composant `ShiftsExplorer` sur `/dashboard` (recherche texte + pagination 5/page via `getShiftsPage`)
+16. **Sauvegarde JSON** : `/api/backup` (GET export complet, POST restauration par fusion) + section sur `/exports`
+17. **Sentry** : `@sentry/nextjs` v11 silencieux sans DSN (`NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_AUTH_TOKEN` optionnels)
+18. **Rappels push** : VAPID + `PushSubscription` + toggle par appareil dans `/settings`, envoi via cron quotidien (anti-spam partagé avec l'e-mail), réception dans `sw.js`
 
 ---
 

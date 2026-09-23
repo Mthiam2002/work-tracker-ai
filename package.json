@@ -14,6 +14,7 @@
     "@neon/config": "^1.1.0",
     "@neon/env": "^1.1.6",
     "@prisma/client": "^6.12.0",
+    "@sentry/nextjs": "^11.0.0",
     "@vercel/blob": "^2.8.0",
     "dotenv": "^17.4.2",
     "next": "16.3.3",
@@ -21,7 +22,8 @@
     "pdfkit": "^0.20.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "resend": "^6.28.1"
+    "resend": "^6.28.1",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -29,6 +31,7 @@
     "@types/pdfkit": "^0.17.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
     "prisma": "^6.12.0",
