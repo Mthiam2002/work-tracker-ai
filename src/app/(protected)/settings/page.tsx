@@ -1,6 +1,7 @@
 import { HourlyRateForm } from "@/components/HourlyRateForm";
 import { NetRatioForm } from "@/components/NetRatioForm";
 import { PushReminderToggle } from "@/components/PushReminderToggle";
+import { SentryTestButton } from "@/components/SentryTestButton";
 import { PremiumsForm } from "@/components/PremiumsForm";
 import { ReminderSettingsForm } from "@/components/ReminderSettingsForm";
 import { requireAuth } from "@/lib/require-auth";
@@ -72,6 +73,14 @@ export default async function SettingsPage() {
             </div>
             <div className="mt-6 border-t border-zinc-100 pt-5 dark:border-white/10">
               <PushReminderToggle />
+            </div>
+          </section>
+
+          <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
+            <h2 className="text-base font-semibold">Diagnostic (temporaire)</h2>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Envoie des erreurs volontaires pour vérifier Sentry, puis supprime cette section.</p>
+            <div className="mt-4">
+              <SentryTestButton />
             </div>
           </section>
         </div>
