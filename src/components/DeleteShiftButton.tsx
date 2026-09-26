@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { deleteWorkShift } from "@/app/(protected)/shifts/shifts-actions";
 
-export function DeleteShiftButton({ id }: { id: string }) {
+export function DeleteShiftButton({ id, onDeleted }: { id: string; onDeleted?: (id: string) => void }) {
   const [isPending, startTransition] = useTransition();
   const [confirm, setConfirm] = useState(false);
 
@@ -24,7 +24,7 @@ export function DeleteShiftButton({ id }: { id: string }) {
       <button
         type="button"
         disabled={isPending}
-        onClick={() => startTransition(async () => { await deleteWorkShift(id); })}
+        onClick={() => startTransition(async () => { await deleteWorkShift(id); onDeleted?.(id); })}
         className="rounded-full bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
       >
         {isPending ? "..." : "Confirmer"}

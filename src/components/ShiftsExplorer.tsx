@@ -41,6 +41,16 @@ export function ShiftsExplorer({ initial, netRatio, pageSize = 5 }: { initial: S
     fetchPage(q, 1);
   }
 
+  function handleDeleted(id: string) {
+    const items = data.items.filter((s) => s.id !== id);
+    const total = Math.max(0, data.total - 1);
+    if (items.length === 0 && data.page > 1) {
+      fetchPage(q, data.page - 1);
+      return;
+    }
+    setData({ ...data, items, total, pages: Math.max(1, Math.ceil(total / pageSize)) });
+  }
+
   return (
     <div>
       <form onSubmit={handleSearch} className="mt-4 flex gap-2">
@@ -98,7 +108,7 @@ export function ShiftsExplorer({ initial, netRatio, pageSize = 5 }: { initial: S
                 >
                   Modifier
                 </Link>
-                <DeleteShiftButton id={s.id} />
+                <DeleteShiftButton id={s.id} onDeleted={handleDeleted} />
               </div>
             </li>
           ))}
