@@ -1,5 +1,8 @@
 {
   "typescript.suggest.autoImports": true,
   "javascript.suggest.autoImports": true,
-  "prisma.pinToPrisma6": true
+  "prisma.pinToPrisma6": true,
+  "cSpell.words": [
+    "pointées"
+  ]
 }

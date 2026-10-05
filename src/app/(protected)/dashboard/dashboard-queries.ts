@@ -34,7 +34,13 @@ export async function getDashboardData() {
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const yearStart = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
 
-  const [week, month, year, recent] = await Promise.all([
+  const prevWeekStart = new Date(weekStart);
+  prevWeekStart.setUTCDate(prevWeekStart.getUTCDate() - 7);
+  const prevMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+  const prevYearStart = new Date(Date.UTC(now.getUTCFullYear() - 1, 0, 1));
+  const prevYearEnd = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+
+  const [week, month, year, recent, prevWeek, prevMonth, prevYear] = await Promise.all([
     totalForRange(userId, weekStart),
     totalForRange(userId, monthStart),
     totalForRange(userId, yearStart),
@@ -43,6 +49,9 @@ export async function getDashboardData() {
       orderBy: { startDate: "desc" },
       take: 10,
     }),
+    totalForRange(userId, prevWeekStart, weekStart),
+    totalForRange(userId, prevMonthStart, monthStart),
+    totalForRange(userId, prevYearStart, prevYearEnd),
   ]);
 
   const lastShift = recent[0]?.startDate ?? null;
@@ -50,7 +59,7 @@ export async function getDashboardData() {
     ? Math.floor((now.getTime() - lastShift.getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
-  return { week, month, year, recent, daysSinceLastShift };
+  return { week, month, year, recent, daysSinceLastShift, prevWeek, prevMonth, prevYear };
 }
 
 export type MonthPoint = { key: string; label: string; hours: number; pay: number; count: number };

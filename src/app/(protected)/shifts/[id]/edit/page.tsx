@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ShiftForm } from "../../ShiftForm";
 import { getWorkShift } from "../../shifts-actions";
+import { getUserSettings } from "../../../settings/settings-actions";
 
 function toDateInput(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -17,7 +18,7 @@ function toTimeInput(d: Date) {
 export default async function EditShiftPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAuth();
   const { id } = await params;
-  const shift = await getWorkShift(id);
+  const [shift, settings] = await Promise.all([getWorkShift(id), getUserSettings().catch(() => null)]);
   if (!shift) notFound();
 
   const initial = {
@@ -28,38 +29,46 @@ export default async function EditShiftPage({ params }: { params: Promise<{ id: 
     breakMinutes: String(shift.breakMinutes),
   };
 
+  const economy = {
+    rate: settings?.rate ?? 12.33,
+    nightMult: settings?.nightMult ?? 0.2,
+    sundayMult: settings?.sundayMult ?? 0.2,
+    holidayMult: settings?.holidayMult ?? 1.0,
+    nightStart: settings?.nightStart ?? 21,
+    nightEnd: settings?.nightEnd ?? 6,
+    netRatio: settings?.netRatio ?? 0.77,
+  };
+
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-950 antialiased dark:bg-black dark:text-zinc-50">
-      <main className="mx-auto w-full max-w-4xl px-6 py-10">
-        <div className="flex flex-wrap gap-2.5">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-white/10"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-              <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Tableau de bord
-          </Link>
-          <Link
-            href="/calendar"
-            className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-white/10"
-          >
-            Calendrier
-          </Link>
-        </div>
+    <main className="mt-4 rounded-2xl bg-gradient-to-b from-[#0d1c38] to-[#070f24] p-4 text-white sm:p-6">
+      <div className="flex flex-wrap gap-2.5">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-[12.5px] font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-3.5 w-3.5">
+            <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Tableau de bord
+        </Link>
+        <Link
+          href="/calendar"
+          className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-[12.5px] font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+        >
+          Calendrier
+        </Link>
+      </div>
 
-        <div className="mt-6">
-          <h1 className="text-3xl font-semibold tracking-tight">Modifier la vacation</h1>
-          <p className="mt-2 max-w-xl text-[15px] leading-7 text-zinc-600 dark:text-zinc-400">
-            Ajuste les horaires ou la pause. Le taux d&apos;origine est conservé sauf si tu coches « Recalculer ».
-          </p>
-        </div>
+      <div className="mt-4">
+        <h1 className="text-[26px] font-extrabold tracking-tight sm:text-[30px]">Modifier la vacation</h1>
+        <p className="mt-1 max-w-xl text-[12.5px] text-white/55">
+          Ajuste les horaires ou la pause. Le taux d&apos;origine est conservé sauf si tu coches « Recalculer ».
+        </p>
+      </div>
 
-        <div className="mt-8">
-          <ShiftForm shiftId={shift.id} initial={initial} />
-        </div>
-      </main>
-    </div>
+      <div className="mt-5">
+        <ShiftForm shiftId={shift.id} initial={initial} economy={economy} />
+      </div>
+    </main>
   );
 }
