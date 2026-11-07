@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     prisma.workShift.findMany({ where: { userId, startDate: { gte: from, lt: to } }, orderBy: { startDate: "asc" } }),
     prisma.user.findUnique({ where: { id: userId }, select: { netRatio: true } }),
   ]);
-  const netRatio = user?.netRatio ?? 0.77;
+  const netRatio = user?.netRatio ?? 0.78;
 
   const totalHours = shifts.reduce((a, s) => a + s.totalHours, 0);
   const totalPay = shifts.reduce((a, s) => a + s.estimatedPay, 0);

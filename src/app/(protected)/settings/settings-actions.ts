@@ -16,8 +16,8 @@ async function ensureUser(userId: string) {
     create: {
       id: userId,
       email,
-      nightMult: 0.2,
-      sundayMult: 0.2,
+      nightMult: 0.1,
+      sundayMult: 0.1,
       holidayMult: 1.0,
       nightStart: 21,
       nightEnd: 6,
@@ -64,12 +64,12 @@ export async function getRateHistory(limit = 20) {
   });
 }
 
-/** Ratio brut → net de l'utilisateur (défaut 0.77). */
+/** Ratio brut → net de l'utilisateur (défaut 0.78, cf. bulletin octobre 2026). */
 export async function getNetRatio() {
   const { userId } = await auth();
   if (!userId) throw new Error("Utilisateur non authentifié");
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { netRatio: true } });
-  return user?.netRatio ?? 0.77;
+  return user?.netRatio ?? 0.78;
 }
 
 /** Nouveau taux = nouvelle ligne d'historique (le passé est préservé). */
@@ -100,6 +100,7 @@ export async function getUserSettings() {
     holidayMult: user.holidayMult,
     nightStart: user.nightStart,
     nightEnd: user.nightEnd,
+    overtimeMult: user.overtimeMult,
     reminderEnabled: user.reminderEnabled,
     reminderThreshold: user.reminderThreshold,
     netRatio: user.netRatio,
@@ -112,11 +113,12 @@ export async function updatePremiums(input: {
   holidayMult: number;
   nightStart: number;
   nightEnd: number;
+  overtimeMult: number;
 }) {
   const { userId } = await auth();
   if (!userId) throw new Error("Utilisateur non authentifié");
-  const { nightMult, sundayMult, holidayMult, nightStart, nightEnd } = input;
-  for (const v of [nightMult, sundayMult, holidayMult]) {
+  const { nightMult, sundayMult, holidayMult, nightStart, nightEnd, overtimeMult } = input;
+  for (const v of [nightMult, sundayMult, holidayMult, overtimeMult]) {
     if (!Number.isFinite(v) || v < 0 || v > 5) throw new Error("Majoration invalide (0 à 5).");
   }
   if (![nightStart, nightEnd].every((h) => Number.isInteger(h) && h >= 0 && h <= 23)) {
@@ -125,7 +127,7 @@ export async function updatePremiums(input: {
   await ensureUser(userId);
   await prisma.user.update({
     where: { id: userId },
-    data: { nightMult, sundayMult, holidayMult, nightStart, nightEnd },
+    data: { nightMult, sundayMult, holidayMult, nightStart, nightEnd, overtimeMult },
   });
   revalidatePath("/settings");
 }

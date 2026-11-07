@@ -12,6 +12,7 @@ type CreateShiftInput = {
   endTime: string;
   endsNextDay: boolean;
   breakMinutes: number;
+  overtimeHours: number; // heures supplémentaires retenues (dernières heures)
   recalcRate?: boolean; // edit : recalculer au taux du jour (sinon garde snapshot)
 };
 
@@ -68,6 +69,7 @@ async function getPremiumConfig(userId: string) {
     holidayMult: user?.holidayMult ?? DEFAULT_PREMIUMS.holidayMult,
     nightStart: user?.nightStart ?? DEFAULT_PREMIUMS.nightStart,
     nightEnd: user?.nightEnd ?? DEFAULT_PREMIUMS.nightEnd,
+    overtimeMult: user?.overtimeMult ?? DEFAULT_PREMIUMS.overtimeMult,
   };
 }
 
@@ -78,7 +80,7 @@ export async function createWorkShift(input: CreateShiftInput) {
   const { startDate, startDateTime, endDate, endDateTime } = computeShift(input);
   const cfg = await getPremiumConfig(userId);
   const rate = await getRateForDate(startDateTime);
-  const pay = computePay(startDateTime, endDateTime, rate, cfg);
+  const pay = computePay(startDateTime, endDateTime, rate, cfg, input.overtimeHours);
 
   await prisma.workShift.create({
     data: {
@@ -95,6 +97,8 @@ export async function createWorkShift(input: CreateShiftInput) {
       sundayHours: pay.sundayHours,
       holidayHours: pay.holidayHours,
       premiumPay: pay.premiumPay,
+      overtimeHours: pay.overtimeHours,
+      overtimePay: pay.overtimePay,
     },
   });
 
@@ -131,7 +135,7 @@ export async function updateWorkShift(id: string, input: CreateShiftInput) {
     input.recalcRate || !existing.rateSnapshot
       ? await getRateForDate(startDateTime)
       : existing.rateSnapshot;
-  const pay = computePay(startDateTime, endDateTime, rate, cfg);
+  const pay = computePay(startDateTime, endDateTime, rate, cfg, input.overtimeHours);
 
   await prisma.workShift.update({
     where: { id },
@@ -148,6 +152,8 @@ export async function updateWorkShift(id: string, input: CreateShiftInput) {
       sundayHours: pay.sundayHours,
       holidayHours: pay.holidayHours,
       premiumPay: pay.premiumPay,
+      overtimeHours: pay.overtimeHours,
+      overtimePay: pay.overtimePay,
     },
   });
 
@@ -174,6 +180,7 @@ export async function duplicateLastShiftAsToday() {
     endTime: toTime(last.endTime),
     endsNextDay,
     breakMinutes: last.breakMinutes,
+    overtimeHours: last.overtimeHours,
   });
 }
 

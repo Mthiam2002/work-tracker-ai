@@ -32,6 +32,8 @@ Usage personnel (mono-utilisateur pour l'instant), authentification via Clerk.
 | Monitoring | Sentry (`@sentry/nextjs` v11, silencieux sans DSN) |
 | PWA | Manifest + icônes maison + service worker minimal (cache assets, repli offline) |
 
+> **Données réelles (bulletin JDM Sécurité, octobre 2026)** : taux de base 12,9609 €/h brut ; majoration nuit = 10 % ; majoration dimanche = 10 % ; heures supplémentaires payées à taux majoré (~16,65 €/h) ; net social/brut ≈ 0,78. Les défauts de l'app reflètent ces valeurs.
+
 ---
 
 ## 3. Modèle de données (Neon / Prisma)
@@ -39,9 +41,10 @@ Usage personnel (mono-utilisateur pour l'instant), authentification via Clerk.
 ### `User`
 Géré principalement par Clerk ; table locale pour les préférences et préférences de calcul.
 - `id` (string, = Clerk userId), `email`, `createdAt` / `updatedAt`
-- Majorations : `nightMult` (0.2), `sundayMult` (0.2), `holidayMult` (1.0), fenêtre nuit `nightStart` (21) / `nightEnd` (6)
+- Majorations : `nightMult` (0.1), `sundayMult` (0.1), `holidayMult` (1.0), fenêtre nuit `nightStart` (21) / `nightEnd` (6)
+- Heures supplémentaires : `overtimeMult` (0.25 = +25 %), retenues par vacation
 - Rappels : `reminderEnabled` (true), `reminderThreshold` (7 j), `lastReminderAt` (anti-spam 7 j partagé e-mail + push)
-- Conversion brut → net : `netRatio` (0.77, modifiable)
+- Conversion brut → net : `netRatio` (0.78, modifiable)
 
 ### `HourlyRate`
 **Historisé** (plus de taux unique) : chaque modification crée une ligne.
@@ -61,6 +64,7 @@ Géré principalement par Clerk ; table locale pour les préférences et préfé
 - `rateSnapshot` — taux figé au moment du pointage (historique SMIC)
 - `nightHours` / `sundayHours` / `holidayHours` — ventilation des heures majorées
 - `premiumPay` — montant des majorations (taux × heures × multiplicateurs cumulables)
+- `overtimeHours` — heures supplémentaires retenues sur la vacation (dernières heures) ; `overtimePay` = overtimeHours × taux × (1 + `overtimeMult`)
 - Net estimé affiché = brut × `User.netRatio` (calcul à l'affichage, non stocké)
 - `createdAt` / `updatedAt`
 
@@ -130,10 +134,11 @@ Géré principalement par Clerk ; table locale pour les préférences et préfé
 1. Bannière in-app (layout protégé) si aucune vacation depuis le seuil (défaut 7 j, modifiable), CTA vers `/shifts/new`
 2. E-mail Resend + notification push via cron quotidien (8h UTC), éligibilité = seuil atteint + aucun rappel depuis 7 j
 
-### F. Salaire : majorations + net
-1. `/settings` : taux historisé, multiplicateurs nuit/dimanche/férié + fenêtre nuit, ratio brut→net
+### F. Salaire : majorations + HS + net
+1. `/settings` : taux historisé, multiplicateurs nuit/dimanche/férié/HS + fenêtre nuit, ratio brut→net
 2. Majoration = heures concernées × taux figé × multiplicateur (cumulables, ex. nuit + dimanche)
-3. Net estimé = brut × ratio, affiché partout (jamais stocké)
+3. HS = heures supplémentaires retenues sur une vacation (dernières heures du service), payées taux × (1 + 25 %), entrées manuellement au pointage (l'employeur arbitre à l'échelle du mois)
+4. Net estimé = brut × ratio, affiché partout (jamais stocké)
 
 ### G. Exports & sauvegarde
 1. `/exports` : récap PDF mensuel (12 derniers mois), CSV tout/par année, sauvegarde JSON complète
@@ -173,15 +178,17 @@ Géré principalement par Clerk ; table locale pour les préférences et préfé
 ## 7. Assumptions retenues
 
 - Édition/suppression directe des pointages, sans historique d'audit
-- Calcul salaire = heures brutes (pause incluse, rémunérée) × taux figé au pointage + majorations nuit/dimanche/férié (multiplicateurs cumulables, configurables)
+- Calcul salaire = heures brutes (pause incluse, rémunérée) × taux figé au pointage + majorations nuit/dimanche/férié (multiplicateurs cumulables, configurables) + heures supplémentaires (+25 %, saisies manuellement par vacation)
 - Taux horaire **historisé** (`validFrom`) : les vacations passées gardent leur taux d'origine
-- Net estimé = brut × ratio configurable (défaut 0.77), indicatif, jamais stocké
+- Net estimé = brut × ratio configurable (défaut 0.78, mesuré sur le bulletin réal. oct. 2026), indicatif, jamais stocké
 - Monitoring actif : Sentry `@sentry/nextjs` v11, silencieux sans `NEXT_PUBLIC_SENTRY_DSN`
 - Bulletins : store Blob **privé**, PDF uniquement, 10 Mo max, pas de règle de rétention
 - Rappels multi-canaux : bannière in-app + e-mail Resend + push web, seuil configurable, anti-spam 7 j partagé
 
 ## 8. Risques / points à surveiller
 
+- Bulletin réal. oct. 2026 (JDM Sécurité) : majorations nuit/dim. 10 % et net 0,78 intégrés ; restent **non modélisés** (écarts estimé vs réel structurels) — prime habillage (21,17 €), prime exceptionnelle (60 €), indemnité panier (62,72 €) + entretien (8,78 €)
+- HS : retenues **manuellement** par vacation (l'employeur arbitre le cumul mensuel au-delà de 151,67 h, pas automatisé) ; paiement observé 16,6498 €/h ≈ +28,45 % vs +25 % modélisés, écart à clarifier (probablement HS majorées nuit)
 - Taux historisé : les vacations passées gardent leur taux, mais un changement de multiplicateurs n'est pas rétroactif (recalcul manuel via édition si besoin)
 - Vacations de nuit affichées sur le jour de début dans le calendrier (badge `+1j`)
 - Jours fériés : détectionFR statique côté calcul (à vérifier chaque année : lundi de Pâques, Ascension, etc.)
@@ -191,4 +198,4 @@ Géré principalement par Clerk ; table locale pour les préférences et préfé
 
 ---
 
-**État : socle complet et déployé (pause en attendant le premier bulletin de paie). Pistes futures : rapprochement estimé vs réel, tests automatisés, import CSV, archivage annuel.**
+**État : premier bulletin ramené (oct. 2026) — majorations, net et HS alignés sur le réel. Suites : rapprochement estimé vs réel complet, primes fixes (panier, habillage), tests automatisés, import CSV, archivage annuel.**

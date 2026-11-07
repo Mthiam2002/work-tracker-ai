@@ -27,16 +27,18 @@ export default async function EditShiftPage({ params }: { params: Promise<{ id: 
     endTime: toTimeInput(shift.endTime),
     endsNextDay: toDateInput(shift.endDate) !== toDateInput(shift.startDate),
     breakMinutes: String(shift.breakMinutes),
+    overtimeHours: String(shift.overtimeHours),
   };
 
   const economy = {
     rate: settings?.rate ?? 12.33,
-    nightMult: settings?.nightMult ?? 0.2,
-    sundayMult: settings?.sundayMult ?? 0.2,
+    nightMult: settings?.nightMult ?? 0.1,
+    sundayMult: settings?.sundayMult ?? 0.1,
     holidayMult: settings?.holidayMult ?? 1.0,
     nightStart: settings?.nightStart ?? 21,
     nightEnd: settings?.nightEnd ?? 6,
-    netRatio: settings?.netRatio ?? 0.77,
+    overtimeMult: settings?.overtimeMult ?? 0.25,
+    netRatio: settings?.netRatio ?? 0.78,
   };
 
   return (

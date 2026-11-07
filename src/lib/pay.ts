@@ -1,4 +1,5 @@
-// Calcul paie v2 : base + majorations nuit / dimanche / férié (cumulables).
+// Calcul paie v2 : base + majorations nuit / dimanche / férié (cumulables)
+// + heures supplémentaires (dernières heures de la vacation, multiplicateur configurable).
 // Tranche de 15 min pour répartir les heures à cheval (ex: nuit + dimanche).
 
 export type PremiumConfig = {
@@ -7,14 +8,16 @@ export type PremiumConfig = {
   holidayMult: number;
   nightStart: number; // heure locale 0-23
   nightEnd: number;
+  overtimeMult: number; // HS : majoration (0.25 = +25%)
 };
 
 export const DEFAULT_PREMIUMS: PremiumConfig = {
-  nightMult: 0.2,
-  sundayMult: 0.2,
+  nightMult: 0.1,
+  sundayMult: 0.1,
   holidayMult: 1.0,
   nightStart: 21,
   nightEnd: 6,
+  overtimeMult: 0.25,
 };
 
 function pad(n: number) {
@@ -80,11 +83,15 @@ export function computePay(
   start: Date,
   end: Date,
   rate: number,
-  cfg: PremiumConfig = DEFAULT_PREMIUMS
+  cfg: PremiumConfig = DEFAULT_PREMIUMS,
+  overtimeHours = 0
 ) {
   const totalHours = (end.getTime() - start.getTime()) / 3600000;
   if (totalHours <= 0) {
-    return { totalHours: 0, nightHours: 0, sundayHours: 0, holidayHours: 0, premiumPay: 0, estimatedPay: 0 };
+    return {
+      totalHours: 0, nightHours: 0, sundayHours: 0, holidayHours: 0,
+      premiumPay: 0, overtimeHours: 0, overtimePay: 0, estimatedPay: 0,
+    };
   }
 
   // Cache jours fériés par année traversée
@@ -111,12 +118,20 @@ export function computePay(
     sunday * rate * cfg.sundayMult +
     holiday * rate * cfg.holidayMult;
 
+  // HS : dernières heures de la vacation, payées rate × (1 + mult), les majorations
+  // (nuit/dim/férié) s'appliquent toujours sur la vacation entière.
+  const otHours = Math.max(0, Math.min(overtimeHours, totalHours));
+  const overtimePay = otHours * rate * cfg.overtimeMult;
+  const basePay = (totalHours - otHours) * rate + otHours * rate * (1 + cfg.overtimeMult);
+
   return {
     totalHours,
     nightHours: night,
     sundayHours: sunday,
     holidayHours: holiday,
     premiumPay,
-    estimatedPay: totalHours * rate + premiumPay,
+    overtimeHours: otHours,
+    overtimePay,
+    estimatedPay: basePay + premiumPay,
   };
 }

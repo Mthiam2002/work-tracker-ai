@@ -13,10 +13,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Majorations configurables (multiplicateurs, ex: 0.2 = +20%)
-  nightMult   Float @default(0.2)
-  sundayMult  Float @default(0.2)
+  // Majorations configurables (multiplicateurs, ex: 0.1 = +10%)
+  nightMult   Float @default(0.1)
+  sundayMult  Float @default(0.1)
   holidayMult Float @default(1.0)
+
+  // Heures supplémentaires : multiplicateur (0.25 = +25%)
+  overtimeMult Float @default(0.25)
   nightStart  Int   @default(21) // début fenêtre nuit (heure locale)
   nightEnd    Int   @default(6) // fin fenêtre nuit
 
@@ -25,8 +28,8 @@ model User {
   reminderThreshold Int       @default(7) // jours sans vacation avant rappel
   lastReminderAt    DateTime?
 
-  // Conversion brut → net (part salariée conservée, ex 0.77)
-  netRatio Float @default(0.77)
+  // Conversion brut → net (part salariée conservée, ex 0.78)
+  netRatio Float @default(0.78)
 
   hourlyRates HourlyRate[]
   workShifts  WorkShift[]
@@ -72,6 +75,11 @@ model WorkShift {
   sundayHours  Float @default(0)
   holidayHours Float @default(0)
   premiumPay   Float @default(0)
+
+  // Heures supplémentaires retenues sur cette vacation (dernières heures, avant pause),
+  // payées à rate × (1 + overtimeMult). overtimePay = overtimeHours × rate × overtimeMult.
+  overtimeHours Float @default(0)
+  overtimePay   Float @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

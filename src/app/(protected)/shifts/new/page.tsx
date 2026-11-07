@@ -35,16 +35,17 @@ export default async function NewShiftPage() {
 
   const economy = {
     rate: settings?.rate ?? 12.33,
-    nightMult: settings?.nightMult ?? 0.2,
-    sundayMult: settings?.sundayMult ?? 0.2,
+    nightMult: settings?.nightMult ?? 0.1,
+    sundayMult: settings?.sundayMult ?? 0.1,
     holidayMult: settings?.holidayMult ?? 1.0,
     nightStart: settings?.nightStart ?? 21,
     nightEnd: settings?.nightEnd ?? 6,
-    netRatio: settings?.netRatio ?? 0.77,
+    overtimeMult: settings?.overtimeMult ?? 0.25,
+    netRatio: settings?.netRatio ?? 0.78,
   };
 
   const lastInfo = last
-    ? { start: toTimeInput(last.startTime), end: toTimeInput(last.endTime), endsNextDay: last.endDate.getTime() !== last.startDate.getTime(), breakMinutes: last.breakMinutes }
+    ? { start: toTimeInput(last.startTime), end: toTimeInput(last.endTime), endsNextDay: last.endDate.getTime() !== last.startDate.getTime(), breakMinutes: last.breakMinutes, overtimeHours: last.overtimeHours }
     : null;
 
   const steps = [

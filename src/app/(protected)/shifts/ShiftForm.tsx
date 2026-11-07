@@ -15,6 +15,7 @@ export type ShiftEconomy = {
   holidayMult: number;
   nightStart: number;
   nightEnd: number;
+  overtimeMult: number;
   netRatio: number;
 };
 
@@ -24,6 +25,7 @@ export type ShiftInitial = {
   endTime: string;
   endsNextDay: boolean;
   breakMinutes: string;
+  overtimeHours: string;
 };
 
 const TYPES = [
@@ -92,10 +94,13 @@ export function ShiftForm({
   const [endTime, setEndTime] = useState(initial?.endTime ?? "20:00");
   const [endsNextDay, setEndsNextDay] = useState(initial?.endsNextDay ?? false);
   const [breakMinutes, setBreakMinutes] = useState(initial?.breakMinutes ?? "20");
+  const [overtimeInput, setOvertimeInput] = useState(initial?.overtimeHours ?? "0");
   const [recalcRate, setRecalcRate] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+
+  const overtimeHours = Math.max(0, parseFloat(overtimeInput.replace(",", ".")) || 0);
 
   const activeType = useMemo(() => {
     const found = TYPES.find((t) => t.key !== "custom" && t.start === startTime && t.end === endTime && t.night === endsNextDay);
@@ -128,16 +133,18 @@ export function ShiftForm({
       holidayMult: economy.holidayMult,
       nightStart: economy.nightStart,
       nightEnd: economy.nightEnd,
-    });
+      overtimeMult: economy.overtimeMult,
+    }, overtimeHours);
     return {
       ...pay,
-      base: pay.totalHours * economy.rate,
+      base: (pay.totalHours - pay.overtimeHours) * economy.rate,
+      hsPay: pay.overtimeHours * economy.rate * (1 + economy.overtimeMult),
       nightBonus: pay.nightHours * economy.rate * economy.nightMult,
       sundayBonus: pay.sundayHours * economy.rate * economy.sundayMult,
       holidayBonus: pay.holidayHours * economy.rate * economy.holidayMult,
       net: brutToNet(pay.estimatedPay, economy.netRatio),
     };
-  }, [date, startTime, endTime, endsNextDay, economy]);
+  }, [date, startTime, endTime, endsNextDay, overtimeHours, economy]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -158,7 +165,7 @@ export function ShiftForm({
 
     startTransition(async () => {
       try {
-        const payload = { date, startTime, endTime, endsNextDay, breakMinutes: parsedBreak, recalcRate };
+        const payload = { date, startTime, endTime, endsNextDay, breakMinutes: parsedBreak, overtimeHours };
         if (isEdit && shiftId) {
           await updateWorkShift(shiftId, payload);
           setIsError(false);
@@ -172,6 +179,7 @@ export function ShiftForm({
           setEndTime("20:00");
           setEndsNextDay(false);
           setBreakMinutes("0");
+          setOvertimeInput("0");
         }
       } catch (error) {
         console.error("Erreur lors de l'enregistrement de la vacation :", error);
@@ -187,6 +195,8 @@ export function ShiftForm({
   if (estimate && estimate.sundayHours > 0) detected.push("Dimanche détecté – majoration appliquée automatiquement");
   if (estimate && estimate.nightHours > 0) detected.push("Nuit détectée – majoration appliquée automatiquement");
   if (estimate && estimate.holidayHours > 0) detected.push("Jour férié détecté – majoration appliquée automatiquement");
+  if (estimate && estimate.overtimeHours > 0)
+    detected.push(`${hoursLabel(estimate.overtimeHours)} supplémentaires retenues – majoration +${Math.round(economy.overtimeMult * 100)}%`);
 
   return (
     <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -319,6 +329,34 @@ export function ShiftForm({
           </span>
         </div>
 
+        {/* Heures supplémentaires */}
+        <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-[14px]">➕</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[12.5px] font-bold">Heures supplémentaires</span>
+            <span className="block text-[10.5px] text-white/45">
+              dans cette vacation, payées +{Math.round(economy.overtimeMult * 100)}%
+            </span>
+          </span>
+          <input
+            type="number"
+            value={overtimeInput}
+            min="0"
+            step="0.5"
+            onChange={(e) => setOvertimeInput(e.target.value)}
+            className="w-[70px] rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-center text-[13px] font-bold outline-none focus:border-[#2f8bff]/60 [color-scheme:dark]"
+          />
+          <span className="text-[11.5px] text-white/50">h</span>
+          {overtimeHours > 0 && estimate && (
+            <span
+              title="Les heures supplémentaires sont payées au taux majoré et comptent en plus"
+              className="flex cursor-help items-center gap-1.5 rounded-lg border border-[#2f8bff]/40 bg-[#2f8bff]/10 px-3 py-1.5 text-[11.5px] font-semibold text-[#8db8ff]"
+            >
+              <span className="h-2 w-2 rounded-full bg-[#2f8bff]" /> +{eur.format(estimate.overtimePay)}
+            </span>
+          )}
+        </div>
+
         {isEdit && (
           <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-[13px]">
             <input type="checkbox" checked={recalcRate} onChange={(e) => setRecalcRate(e.target.checked)} className="mt-0.5 h-4 w-4 accent-blue-500" />
@@ -428,9 +466,15 @@ export function ShiftForm({
             <p className="flex items-center gap-1.5 text-[12px] font-bold">📘 Détail des majorations</p>
             <dl className="mt-2 space-y-1.5 text-[12px]">
               <div className="flex justify-between gap-2">
-                <dt className="text-white/55">Salaire de base ({estimate ? hoursLabel(estimate.totalHours) : "—"})</dt>
+                <dt className="text-white/55">Salaire de base ({estimate ? hoursLabel(estimate.totalHours - estimate.overtimeHours) : "—"})</dt>
                 <dd className="font-semibold">{estimate ? eur.format(estimate.base) : "—"}</dd>
               </div>
+              {estimate && estimate.overtimeHours > 0 && (
+                <div className="flex justify-between gap-2">
+                  <dt className="text-[#8db8ff]">Heures suppl. ({hoursLabel(estimate.overtimeHours)}, +{Math.round(economy.overtimeMult * 100)}%)</dt>
+                  <dd className="font-semibold text-[#8db8ff]">{eur.format(estimate.hsPay)}</dd>
+                </div>
+              )}
               <div className="flex justify-between gap-2">
                 <dt className="text-white/55">Majoration dimanche</dt>
                 <dd className="font-semibold">+ {estimate ? eur.format(estimate.sundayBonus) : "—"}</dd>

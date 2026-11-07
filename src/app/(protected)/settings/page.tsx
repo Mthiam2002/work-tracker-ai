@@ -61,7 +61,7 @@ export default async function SettingsPage() {
           <section className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
             <h2 className="text-base font-semibold">Majorations nuit / dimanche / férié</h2>
             <div className="mt-4">
-              <PremiumsForm initial={{ nightMult: s.nightMult, sundayMult: s.sundayMult, holidayMult: s.holidayMult, nightStart: s.nightStart, nightEnd: s.nightEnd }} />
+              <PremiumsForm initial={{ nightMult: s.nightMult, sundayMult: s.sundayMult, holidayMult: s.holidayMult, nightStart: s.nightStart, nightEnd: s.nightEnd, overtimeMult: s.overtimeMult }} />
             </div>
           </section>
 

@@ -22,7 +22,7 @@ export async function GET() {
     user: user
       ? {
           nightMult: user.nightMult, sundayMult: user.sundayMult, holidayMult: user.holidayMult,
-          nightStart: user.nightStart, nightEnd: user.nightEnd,
+          nightStart: user.nightStart, nightEnd: user.nightEnd, overtimeMult: user.overtimeMult,
           reminderEnabled: user.reminderEnabled, reminderThreshold: user.reminderThreshold,
           netRatio: user.netRatio,
         }
@@ -34,6 +34,7 @@ export async function GET() {
       breakMinutes: s.breakMinutes, totalHours: s.totalHours, estimatedPay: s.estimatedPay,
       rateSnapshot: s.rateSnapshot, nightHours: s.nightHours, sundayHours: s.sundayHours,
       holidayHours: s.holidayHours, premiumPay: s.premiumPay,
+      overtimeHours: s.overtimeHours, overtimePay: s.overtimePay,
     })),
     payslips: payslips.map((p) => ({ year: p.year, month: p.month, fileName: p.fileName, fileUrl: p.fileUrl })),
   };
@@ -76,18 +77,18 @@ export async function POST(req: Request) {
     await prisma.user.upsert({
       where: { id: userId },
       update: {
-        nightMult: num(u.nightMult, 0, 5, 0.2), sundayMult: num(u.sundayMult, 0, 5, 0.2),
+        nightMult: num(u.nightMult, 0, 5, 0.1), sundayMult: num(u.sundayMult, 0, 5, 0.1),
         holidayMult: num(u.holidayMult, 0, 5, 1), nightStart: Math.trunc(num(u.nightStart, 0, 23, 21)),
-        nightEnd: Math.trunc(num(u.nightEnd, 0, 23, 6)),
+        nightEnd: Math.trunc(num(u.nightEnd, 0, 23, 6)), overtimeMult: num(u.overtimeMult, 0, 5, 0.25),
         reminderEnabled: typeof u.reminderEnabled === "boolean" ? u.reminderEnabled : true,
         reminderThreshold: Math.trunc(num(u.reminderThreshold, 1, 30, 7)),
-        netRatio: num(u.netRatio, 0.5, 0.95, 0.77),
+        netRatio: num(u.netRatio, 0.5, 0.95, 0.78),
       },
       create: {
         id: userId, email: clerkEmail ?? `${userId}@local`,
-        nightMult: num(u.nightMult, 0, 5, 0.2), sundayMult: num(u.sundayMult, 0, 5, 0.2),
+        nightMult: num(u.nightMult, 0, 5, 0.1), sundayMult: num(u.sundayMult, 0, 5, 0.1),
         holidayMult: num(u.holidayMult, 0, 5, 1), nightStart: Math.trunc(num(u.nightStart, 0, 23, 21)),
-        nightEnd: Math.trunc(num(u.nightEnd, 0, 23, 6)),
+        nightEnd: Math.trunc(num(u.nightEnd, 0, 23, 6)), overtimeMult: num(u.overtimeMult, 0, 5, 0.25),
         reminderEnabled: typeof u.reminderEnabled === "boolean" ? u.reminderEnabled : true,
         reminderThreshold: Math.trunc(num(u.reminderThreshold, 1, 30, 7)),
         netRatio: num(u.netRatio, 0.5, 0.95, 0.77),
@@ -121,6 +122,7 @@ export async function POST(req: Request) {
         rateSnapshot: num(w.rateSnapshot) || 0, nightHours: num(w.nightHours) || 0,
         sundayHours: num(w.sundayHours) || 0, holidayHours: num(w.holidayHours) || 0,
         premiumPay: num(w.premiumPay) || 0,
+        overtimeHours: num(w.overtimeHours) || 0, overtimePay: num(w.overtimePay) || 0,
       },
     });
     summary.shifts++;

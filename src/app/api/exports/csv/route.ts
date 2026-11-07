@@ -35,9 +35,9 @@ export async function GET(req: Request) {
     orderBy: { startDate: "asc" },
   });
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { netRatio: true } });
-  const netRatio = user?.netRatio ?? 0.77;
+  const netRatio = user?.netRatio ?? 0.78;
 
-  const header = ["Date", "Heure début", "Heure fin", "Nuit (+1j)", "Pause (min)", "Heures totales", "Taux (€/h)", "Heures nuit", "Heures dimanche", "Heures férié", "Majorations (€)", "Paie brute estimée (€)", "Paie nette estimée (€)"];
+  const header = ["Date", "Heure début", "Heure fin", "Nuit (+1j)", "Pause (min)", "Heures totales", "Taux (€/h)", "Heures nuit", "Heures dimanche", "Heures férié", "Heures suppl.", "Majorations (€)", "Paie brute estimée (€)", "Paie nette estimée (€)"];
   const lines = shifts.map((s) =>
     [
       csvCell(fmtDate(s.startDate)),
@@ -50,6 +50,7 @@ export async function GET(req: Request) {
       csvCell((s.nightHours || 0).toFixed(2).replace(".", ",")),
       csvCell((s.sundayHours || 0).toFixed(2).replace(".", ",")),
       csvCell((s.holidayHours || 0).toFixed(2).replace(".", ",")),
+      csvCell((s.overtimeHours || 0).toFixed(2).replace(".", ",")),
       csvCell((s.premiumPay || 0).toFixed(2).replace(".", ",")),
       csvCell(s.estimatedPay.toFixed(2).replace(".", ",")),
       csvCell(brutToNet(s.estimatedPay, netRatio).toFixed(2).replace(".", ",")),

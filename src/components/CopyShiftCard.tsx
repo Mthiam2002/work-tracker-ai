@@ -9,6 +9,7 @@ export type LastShiftInfo = {
   end: string;
   endsNextDay: boolean;
   breakMinutes: number;
+  overtimeHours: number;
 } | null;
 
 function nextDays(n: number) {
@@ -48,6 +49,7 @@ export function CopyShiftCard({ last }: { last: LastShiftInfo }) {
             endTime: last.end,
             endsNextDay: last.endsNextDay,
             breakMinutes: last.breakMinutes,
+            overtimeHours: last.overtimeHours,
           });
         }
         setMessage(`${targets.length} vacation${targets.length > 1 ? "s" : ""} créée${targets.length > 1 ? "s" : ""}.`);
