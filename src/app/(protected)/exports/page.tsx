@@ -28,11 +28,11 @@ export default async function ExportsPage() {
   const pdfLabel = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" });
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans text-zinc-950 antialiased dark:bg-black dark:text-zinc-50">
-      <main className="mx-auto w-full max-w-4xl px-6 py-10">
+    <main className="mt-4">
+      <div className="min-w-0">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-white/10"
+          className="inline-flex items-center gap-2 rounded-full bg-accent/10 px-4 py-2 text-[12.5px] font-medium text-accent backdrop-blur transition hover:bg-accent/15"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
             <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
@@ -40,24 +40,24 @@ export default async function ExportsPage() {
           Retour au tableau de bord
         </Link>
 
-        <div className="mt-6">
-          <h1 className="text-3xl font-semibold tracking-tight">Exports</h1>
-          <p className="mt-2 max-w-xl text-balance text-[15px] leading-7 text-zinc-600 dark:text-zinc-400">
+        <div className="mt-4 motion-safe:animate-[card-in_500ms_ease-out_both]">
+          <h1 className="text-[30px] font-extrabold tracking-tight text-card-foreground">Exports</h1>
+          <p className="mt-2 max-w-xl text-[15px] leading-7 text-muted-foreground">
             CSV compatible Excel pour tes vacations, et récapitulatif PDF mensuel (totaux brut/net + détail).
           </p>
         </div>
 
-        <section className="mt-8 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
-          <h2 className="text-base font-semibold tracking-tight">Récap PDF mensuel</h2>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">12 derniers mois, avec totaux brut et net estimé.</p>
+        <section className="motion-safe:animate-[card-in_500ms_ease-out_both] mt-4 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(16,42,80,0.06)] sm:p-6 dark:shadow-none">
+          <h2 className="text-[15px] font-bold text-card-foreground">Récap PDF mensuel</h2>
+          <p className="mt-1 text-sm text-muted-foreground">12 derniers mois, avec totaux brut et net estimé.</p>
           <ul className="mt-4 space-y-2.5">
             {lastMonths.map((m) => (
-              <li key={`${m.year}-${m.month}`} className="flex items-center justify-between gap-4 rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-white/5">
-                <span className="text-sm font-semibold capitalize">{pdfLabel.format(new Date(Date.UTC(m.year, m.month - 1, 1)))}</span>
+              <li key={`${m.year}-${m.month}`} className="flex items-center justify-between gap-4 rounded-xl p-3 transition hover:bg-muted/50">
+                <span className="tnum text-sm font-semibold capitalize text-card-foreground">{pdfLabel.format(new Date(Date.UTC(m.year, m.month - 1, 1)))}</span>
                 <a
                   href={`/api/exports/pdf?year=${m.year}&month=${m.month}`}
                   download
-                  className="rounded-full bg-blue-600 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-blue-700"
+                  className="tnum rounded-full border border-border px-4 py-1.5 text-xs font-medium text-card-foreground transition hover:bg-accent/12 hover:text-accent"
                 >
                   PDF
                 </a>
@@ -66,44 +66,44 @@ export default async function ExportsPage() {
           </ul>
         </section>
 
-        <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
-          <h2 className="text-base font-semibold tracking-tight">Sauvegarde complète (JSON)</h2>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <section className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(16,42,80,0.06)] sm:p-6 dark:shadow-none">
+          <h2 className="text-[15px] font-bold text-card-foreground">Sauvegarde complète (JSON)</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
             Paramètres, historique de taux, vacations et bulletins (métadonnées — les PDF restent dans Blob). La restauration fusionne sans écraser les doublons.
           </p>
           <a
             href="/api/backup"
             download
-            className="mt-4 inline-flex rounded-full bg-blue-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
+            className="mt-4 inline-flex rounded-full bg-accent px-6 py-3 text-sm font-medium text-white transition hover:bg-accent/90"
           >
             Télécharger la sauvegarde (.json)
           </a>
           <BackupRestoreForm />
         </section>
 
-        <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
-          <h2 className="text-base font-semibold tracking-tight">CSV — toutes les vacations</h2>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Un seul fichier, trié par date croissante.</p>
+        <section className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(16,42,80,0.06)] sm:p-6 dark:shadow-none">
+          <h2 className="text-[15px] font-bold text-card-foreground">CSV — toutes les vacations</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Un seul fichier, trié par date croissante.</p>
           <a
             href="/api/exports/csv"
             download
-            className="mt-4 inline-flex rounded-full bg-blue-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
+            className="mt-4 inline-flex rounded-full bg-accent px-6 py-3 text-sm font-medium text-white transition hover:bg-accent/90"
           >
             Télécharger tout (.csv)
           </a>
         </section>
 
         {years.length > 0 && (
-          <section className="mt-4 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 dark:border-white/10 dark:bg-zinc-950">
-            <h2 className="text-base font-semibold tracking-tight">CSV par année</h2>
+          <section className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(16,42,80,0.06)] sm:p-6 dark:shadow-none">
+            <h2 className="text-[15px] font-bold text-card-foreground">CSV par année</h2>
             <ul className="mt-4 space-y-2.5">
               {years.map((y) => (
-                <li key={y} className="flex items-center justify-between gap-4 rounded-2xl bg-zinc-50 px-4 py-3 dark:bg-white/5">
-                  <span className="text-sm font-semibold">{y}</span>
+                <li key={y} className="flex items-center justify-between gap-4 rounded-xl p-3 transition hover:bg-muted/50">
+                  <span className="tnum text-sm font-semibold text-card-foreground">{y}</span>
                   <a
                     href={`/api/exports/csv?year=${y}`}
                     download
-                    className="rounded-full border border-zinc-200 px-4 py-1.5 text-xs font-medium transition hover:bg-zinc-100 dark:border-white/15 dark:hover:bg-white/10"
+                    className="tnum rounded-full border border-border px-4 py-1.5 text-xs font-medium text-card-foreground transition hover:bg-accent/12 hover:text-accent"
                   >
                     Télécharger
                   </a>
@@ -112,7 +112,7 @@ export default async function ExportsPage() {
             </ul>
           </section>
         )}
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

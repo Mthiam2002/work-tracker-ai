@@ -38,23 +38,23 @@ export function MonthlyChart({ points, netRatio }: { points: MonthPoint[]; netRa
   const ticks = [2000, 1500, 1500, 1000, 500];
 
   return (
-    <section className="rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(16,42,80,0.06)] sm:p-6 dark:border dark:border-white/10">
+    <section className="motion-safe:animate-[card-in_500ms_ease-out_both] rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(16,42,80,0.06)] sm:p-6 dark:shadow-none">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1d6ff2] text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-white">
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
               <path d="M12 2a10 10 0 1 0 10 10c0-.34-.02-.67-.05-1L14 19l-2-6-6-2 8-7c-.33-.03-.66-.05-1-.05z" opacity=".9" />
               <circle cx="18.5" cy="5.5" r="1.6" fill="white" />
             </svg>
           </span>
           <span>
-            <span className="block text-[15px] font-bold text-[#16233a]">Évolution des revenus</span>
-            <span className="block text-[12px] text-[#8a97ad]">
+            <span className="block text-[15px] font-bold text-card-foreground">Évolution des revenus</span>
+            <span className="block text-[12px] text-muted-foreground">
               {mode === "heures" ? "Heures pointées / mois" : mode === "net" ? "Salaire net estimé / mois" : "Salaire brut estimé / mois"}
             </span>
           </span>
         </div>
-        <div className="flex gap-1 rounded-full bg-[#eef3f9] p-1">
+        <div className="flex gap-1 rounded-full bg-muted p-1">
           {modes.map((m) => (
             <button
               key={m.key}
@@ -62,7 +62,7 @@ export function MonthlyChart({ points, netRatio }: { points: MonthPoint[]; netRa
               onClick={() => setMode(m.key)}
               aria-pressed={mode === m.key}
               className={`rounded-full px-4 py-1.5 text-[12px] font-semibold transition ${
-                mode === m.key ? "bg-[#1d6ff2] text-white shadow-sm" : "text-[#7b8aa0] hover:text-[#1e2a3b]"
+                mode === m.key ? "bg-accent text-white shadow-sm" : "text-muted-foreground hover:text-card-foreground"
               }`}
             >
               {m.label}
@@ -72,10 +72,10 @@ export function MonthlyChart({ points, netRatio }: { points: MonthPoint[]; netRa
       </div>
 
       {points.every((p) => p.count === 0) ? (
-        <p className="mt-4 text-sm text-[#8a97ad]">Pas encore de données. Pointe des vacations pour voir ta courbe ici.</p>
+        <p className="mt-4 text-sm text-muted-foreground">Pas encore de données. Pointe des vacations pour voir ta courbe ici.</p>
       ) : (
         <div className="mt-5 flex gap-2">
-          <div className="flex w-11 flex-col justify-between pb-6.5 pt-4.5 text-right text-[10.5px] leading-none text-[#8a97ad]">
+          <div className="tnum flex w-11 flex-col justify-between pb-6.5 pt-4.5 text-right text-[10.5px] leading-none text-muted-foreground">
             {ticks.map((t, i) => (
               <span key={i}>{t.toLocaleString("fr-FR")} €</span>
             ))}
@@ -90,17 +90,25 @@ export function MonthlyChart({ points, netRatio }: { points: MonthPoint[]; netRa
               return (
                 <div
                   key={p.key}
-                  className="flex min-w-0 flex-col items-center gap-1.5"
+                  className="group flex min-w-0 flex-col items-center gap-1.5"
                   title={`${p.label} : ${hoursLabel(p.hours)} · ${eur2.format(p.pay)} brut`}
                 >
-                  <span className="h-4 text-[10.5px] font-bold text-[#3d4e68]">{p.count > 0 ? topLabel(p) : "0 €"}</span>
-                  <div className="flex h-37.5 w-full items-end rounded-md bg-[#f3f6fb]">
+                  <span className="tnum h-4 text-[10.5px] font-bold text-card-foreground">{p.count > 0 ? topLabel(p) : "0 €"}</span>
+                  <div className="flex h-37.5 w-full items-end rounded-md bg-muted/70">
                     <div
                       style={{ height: `${height}px` }}
-                      className={`w-full rounded-md ${p.count === 0 ? "bg-[#1d6ff2]/25" : isCurrent ? "bg-[#1d6ff2]" : isSept ? "bg-[#a9c6f5]" : "bg-[#1d6ff2]/30"}`}
+                      className={`w-full rounded-md transition-[height] duration-500 ease-out ${
+                        p.count === 0
+                          ? "bg-accent/25"
+                          : isCurrent
+                            ? "bg-accent"
+                            : isSept
+                              ? "bg-accent/50"
+                              : "bg-accent/30 group-hover:bg-accent/45"
+                      }`}
                     />
                   </div>
-                  <span className={`text-[11px] capitalize ${isCurrent || isSept ? "font-semibold text-[#1e2a3b]" : "text-[#8a97ad]"}`}>
+                  <span className={`text-[11px] capitalize ${isCurrent || isSept ? "font-semibold text-card-foreground" : "text-muted-foreground"}`}>
                     {p.label}
                   </span>
                 </div>

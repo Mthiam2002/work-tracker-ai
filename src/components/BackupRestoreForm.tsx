@@ -44,17 +44,17 @@ export function BackupRestoreForm() {
         type="file"
         accept="application/json,.json"
         onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-        className="w-full rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-4 text-sm text-zinc-600 file:mr-4 file:rounded-full file:border-0 file:bg-zinc-950 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white dark:border-white/15 dark:bg-white/5 dark:text-zinc-300 dark:file:bg-white dark:file:text-black"
+        className="w-full rounded-2xl border border-dashed border-border bg-muted/60 px-4 py-4 text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-accent/90 dark:border-white/15 dark:text-muted-foreground"
       />
       <button
         type="submit"
         disabled={isPending || !file}
-        className="rounded-full border border-zinc-200 px-5 py-2.5 text-sm font-medium transition hover:bg-zinc-100 disabled:opacity-50 dark:border-white/15 dark:hover:bg-white/10"
+        className="rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:bg-accent/12 hover:text-accent disabled:opacity-50"
       >
         {isPending ? "Restauration..." : "Restaurer"}
       </button>
       {message && (
-        <p className={`rounded-2xl px-4 py-3 text-sm ${isError ? "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"}`}>
+        <p className={`rounded-2xl px-4 py-3 text-sm ${isError ? "bg-loss/12 text-loss dark:bg-loss/20 dark:text-loss" : "bg-profit/12 text-profit dark:bg-profit/20 dark:text-profit"}`}>
           {message}
         </p>
       )}

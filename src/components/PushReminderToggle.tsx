@@ -35,7 +35,7 @@ export function PushReminderToggle() {
   }, []);
 
   if (!supported) {
-    return <p className="text-xs text-zinc-500">Notifications push non supportées par ce navigateur.</p>;
+    return <p className="text-xs text-muted-foreground">Notifications push non supportées par ce navigateur.</p>;
   }
 
   function handleToggle() {
@@ -92,21 +92,21 @@ export function PushReminderToggle() {
           disabled={isPending}
           onClick={handleToggle}
           className={`flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition disabled:opacity-50 ${
-            subscribed ? "justify-end bg-blue-600" : "justify-start bg-zinc-300 dark:bg-zinc-700"
+            subscribed ? "justify-end bg-accent" : "justify-start bg-muted dark:bg-white/10"
           }`}
         >
           <span className="h-5 w-5 rounded-full bg-white" />
         </button>
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium text-card-foreground">
           {subscribed ? "Rappels push activés sur cet appareil" : "Activer les rappels push sur cet appareil"}
         </span>
       </label>
       {permission === "denied" && (
-        <p className="text-xs text-amber-600 dark:text-amber-400">
+        <p className="text-xs text-muted-foreground">
           Notifications bloquées : autorise-les dans les réglages du navigateur, puis réessaie.
         </p>
       )}
-      {message && <p className="text-xs text-zinc-500">{message}</p>}
+      {message && <p className="text-xs text-muted-foreground">{message}</p>}
     </div>
   );
 }

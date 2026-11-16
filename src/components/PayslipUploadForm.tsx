@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { uploadPayslip } from "@/app/(protected)/payslips/payslips-actions";
 
 const inputClass =
-  "w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[15px] text-zinc-950 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-white/10 dark:[color-scheme:dark]";
+  "w-full rounded-2xl border border-border bg-card px-4 py-3 text-[15px] text-card-foreground outline-none transition focus:border-accent focus:bg-card focus:ring-4 focus:ring-accent/20 dark:border-white/10 dark:text-card-foreground dark:focus:bg-card";
 
 export function PayslipUploadForm() {
   const currentYear = new Date().getFullYear();
@@ -50,7 +50,7 @@ export function PayslipUploadForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label htmlFor="payslip-file" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="payslip-file" className="mb-1.5 block text-sm font-medium text-card-foreground">
           Fichier PDF (max 10 Mo)
         </label>
         <input
@@ -58,10 +58,10 @@ export function PayslipUploadForm() {
           type="file"
           accept="application/pdf,.pdf"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="w-full rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-sm text-zinc-600 file:mr-4 file:rounded-full file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-700 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300"
+          className="w-full rounded-2xl border border-dashed border-border bg-muted/60 px-4 py-6 text-sm text-muted-foreground file:mr-4 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-accent/90 dark:border-white/15 dark:text-muted-foreground"
         />
         {file && (
-          <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1.5 text-xs text-muted-foreground">
             {file.name} · {(file.size / 1024 / 1024).toFixed(2)} Mo
           </p>
         )}
@@ -69,7 +69,7 @@ export function PayslipUploadForm() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor="payslip-year" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="payslip-year" className="mb-1.5 block text-sm font-medium text-card-foreground">
             Année
           </label>
           <input
@@ -84,7 +84,7 @@ export function PayslipUploadForm() {
           />
         </div>
         <div>
-          <label htmlFor="payslip-month" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="payslip-month" className="mb-1.5 block text-sm font-medium text-card-foreground">
             Mois (optionnel)
           </label>
           <select id="payslip-month" value={month} onChange={(e) => setMonth(e.target.value)} className={inputClass}>
@@ -103,7 +103,7 @@ export function PayslipUploadForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="flex h-12 w-full items-center justify-center rounded-full bg-blue-600 px-7 text-[15px] font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+        className="flex h-12 w-full items-center justify-center rounded-full bg-accent px-7 text-[15px] font-medium text-white transition hover:bg-accent/90 disabled:opacity-50"
       >
         {isPending ? "Téléversement..." : "Téléverser le bulletin"}
       </button>
@@ -112,8 +112,8 @@ export function PayslipUploadForm() {
         <p
           className={`rounded-2xl px-4 py-3 text-sm ${
             isError
-              ? "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"
-              : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+              ? "bg-loss/12 text-loss dark:bg-loss/20 dark:text-loss"
+              : "bg-profit/12 text-profit dark:bg-profit/20 dark:text-profit"
           }`}
         >
           {message}

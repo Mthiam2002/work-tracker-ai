@@ -2,27 +2,209 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ============================================================
+   DESIGN TOKENS — Work Tracker (style : Financial Dashboard)
+   Palette : bleu confiance, vert profit, rouge perte.
+   Chiffres : Fira Code (tabulaire), texte : Fira Sans.
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Mode clair */
+  --background: #eef3f9;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --muted: #e8ecf0;
+  --muted-foreground: #475569;
+  --border: #e4e4e7;
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+  --ring: #2563eb;
+
+  /* Sémantique paie (contrasté en light) */
+  --profit: #16a34a;
+  --loss: #dc2626;
+  --premium: #7c3aed; /* majorations / HS */
+
+  /* Surfaces dégradé (hero pages) */
+  --hero-from: #0d1c38;
+  --hero-to: #070f24;
+
+  /* Rayons / espacements dashboard (dense) */
+  --radius-card: 1rem;
+  --space-card: 1rem;
+}
+
+.dark {
+  /* Mode sombre (prioritaire) */
+  --background: #070f24;
+  --foreground: #ededed;
+  --card: #0d1c38;
+  --card-foreground: #f5f7fa;
+  --muted: #132444;
+  --muted-foreground: #8b9bb4;
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+  --ring: #3b82f6;
+
+  /* Sémantique paie (vif sur fond sombre) */
+  --profit: #22c55e;
+  --loss: #ef4444;
+  --premium: #a78bfa;
+}
+
+/* ------------------------------------------------------------
+   Portées de thème — pour les pages mixtes (ex : page d'accueil
+   hero sombre + sections claires). Force les tokens localement
+   quelle que soit la classe .dark du <html>.
+   ------------------------------------------------------------ */
+.theme-light {
+  --background: #eef3f9;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --muted: #e8ecf0;
+  --muted-foreground: #475569;
+  --border: #e4e4e7;
+  --profit: #16a34a;
+  --loss: #dc2626;
+  --premium: #7c3aed;
+}
+
+.theme-dark {
+  --background: #070f24;
+  --foreground: #ededed;
+  --card: #0d1c38;
+  --card-foreground: #f5f7fa;
+  --muted: #132444;
+  --muted-foreground: #8b9bb4;
+  --border: rgba(255, 255, 255, 0.1);
+  --profit: #22c55e;
+  --loss: #ef4444;
+  --premium: #a78bfa;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+  --color-profit: var(--profit);
+  --color-loss: var(--loss);
+  --color-premium: var(--premium);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-fira-sans), system-ui, sans-serif;
+  --font-mono: var(--font-fira-code), ui-monospace, monospace;
+
+  --radius-card: var(--radius-card);
 }
 
 body {
-  background: #eef3f9;
+  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-fira-sans), system-ui, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Chiffres monétaires / heures : alignement tabulaire parfait */
+.tnum {
+  font-family: var(--font-fira-code), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ------------------------------------------------------------
+   Formulaire Clerk (connexion / inscription).
+   Le CSS de Clerk est injecté HORS des cascade layers de
+   Tailwind : il bat donc les utilities (`bg-background` etc.).
+   On repasse devant avec une règle hors layer + !important,
+   en restant sur les tokens (couleurs via var()).
+   ------------------------------------------------------------ */
+.auth-form .cl-input,
+.auth-form .cl-formFieldInput {
+  background-color: var(--background) !important;
+  border-color: var(--border) !important;
+  color: var(--card-foreground) !important;
+  border-radius: 0.75rem !important;
+  font-size: 15px !important;
+}
+.auth-form .cl-input::placeholder {
+  color: var(--muted-foreground) !important;
+}
+/* Clerk redéfinit --accent / --accent-foreground sur ses propres
+   éléments (conflit de nom) : on utilise des variables dédiées,
+   littérales, pour ne jamais lire celles de Clerk. */
+.auth-form .cl-formButtonPrimary,
+.auth-form .cl-socialButtonsBlockButton {
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+}
+.auth-form .cl-formButtonPrimary {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+}
+.auth-form .cl-formButtonPrimary:hover {
+  background-color: rgba(37, 99, 235, 0.9) !important;
+}
+.auth-form .cl-socialButtonsBlockButton {
+  background-color: var(--background) !important;
+  /* --border est lui aussi redéfini par Clerk : bordure du thème light (le
+     formulaire est toujours forcé en clair via .theme-light). */
+  border-color: #e4e4e7 !important;
+  color: var(--card-foreground) !important;
+  border-radius: 9999px !important;
+}
+.auth-form .cl-socialButtonsBlockButton:hover {
+  background-color: var(--muted) !important;
+}
+.auth-form .cl-dividerLine {
+  background-color: var(--border) !important;
+}
+.auth-form .cl-dividerText,
+.auth-form .cl-footerActionText {
+  color: var(--muted-foreground) !important;
+}
+.auth-form .cl-footerActionLink,
+.auth-form .cl-formFieldLabel,
+.auth-form .cl-backLink {
+  color: var(--accent) !important;
+}
+.auth-form .cl-otpCodeFieldInput {
+  background-color: var(--background) !important;
+  border-color: var(--border) !important;
+  color: var(--card-foreground) !important;
+  border-radius: 0.75rem !important;
+}
+
+/* Animations d'entrée (dashboard) */
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Accessibilité : respect de la préférence systeme */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

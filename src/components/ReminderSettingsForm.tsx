@@ -23,26 +23,26 @@ export function ReminderSettingsForm({ initial }: { initial: { enabled: boolean;
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 motion-safe:animate-[card-in_450ms_ease-out_both]">
       <label className="flex cursor-pointer items-center gap-3 text-sm">
-        <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="h-4 w-4 accent-blue-600" />
-        <span className="font-medium">M&apos;envoyer un email si j&apos;oublie de pointer</span>
+        <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="h-4 w-4 accent-accent" />
+        <span className="font-medium text-card-foreground">M&apos;envoyer un email si j&apos;oublie de pointer</span>
       </label>
       <div>
-        <label className="mb-1.5 block text-sm font-medium">Seuil (jours sans vacation)</label>
+        <label className="mb-1.5 block text-sm font-medium text-card-foreground">Seuil (jours sans vacation)</label>
         <input
           type="number"
           min="1"
           max="30"
           value={threshold}
           onChange={(e) => setThreshold(e.target.value)}
-          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[15px] outline-none focus:border-blue-500 focus:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-white/10"
+          className="w-full rounded-2xl border border-border bg-card px-4 py-3 text-[15px] text-card-foreground outline-none transition focus:border-accent focus:bg-card"
         />
       </div>
-      <button type="submit" disabled={isPending} className="flex h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black">
+      <button type="submit" disabled={isPending} className="flex h-11 items-center justify-center rounded-full bg-accent px-7 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50">
         {isPending ? "Enregistrement..." : "Enregistrer"}
       </button>
-      {message && <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">{message}</p>}
+      {message && <p className="rounded-2xl px-4 py-3 text-sm bg-profit/12 text-profit dark:bg-profit/20 dark:text-profit">{message}</p>}
     </form>
   );
 }

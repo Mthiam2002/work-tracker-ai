@@ -4,7 +4,7 @@ import { updatePremiums } from "@/app/(protected)/settings/settings-actions";
 import { useState, useTransition } from "react";
 
 const inputClass =
-  "w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-[15px] text-zinc-950 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-white/10";
+  "w-full rounded-2xl border border-border bg-card px-4 py-3 text-[15px] text-card-foreground outline-none transition focus:border-accent focus:bg-card focus:ring-4 focus:ring-accent/20";
 
 export function PremiumsForm({ initial }: { initial: { nightMult: number; sundayMult: number; holidayMult: number; nightStart: number; nightEnd: number; overtimeMult: number } }) {
   const [nightMult, setNightMult] = useState(String(initial.nightMult * 100));
@@ -43,41 +43,41 @@ export function PremiumsForm({ initial }: { initial: { nightMult: number; sunday
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 motion-safe:animate-[card-in_450ms_ease-out_both]">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <label className="mb-1.5 block text-sm font-medium">Nuit (%)</label>
+          <label className="mb-1.5 block text-sm font-medium text-card-foreground">Nuit (%)</label>
           <input value={nightMult} onChange={(e) => setNightMult(e.target.value)} inputMode="decimal" className={inputClass} />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium">Dimanche (%)</label>
+          <label className="mb-1.5 block text-sm font-medium text-card-foreground">Dimanche (%)</label>
           <input value={sundayMult} onChange={(e) => setSundayMult(e.target.value)} inputMode="decimal" className={inputClass} />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium">Férié (%)</label>
+          <label className="mb-1.5 block text-sm font-medium text-card-foreground">Férié (%)</label>
           <input value={holidayMult} onChange={(e) => setHolidayMult(e.target.value)} inputMode="decimal" className={inputClass} />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium">Heures suppl. (%)</label>
+          <label className="mb-1.5 block text-sm font-medium text-card-foreground">Heures suppl. (%)</label>
           <input value={overtimeMult} onChange={(e) => setOvertimeMult(e.target.value)} inputMode="decimal" className={inputClass} />
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-sm font-medium">Nuit de (h)</label>
+          <label className="mb-1.5 block text-sm font-medium text-card-foreground">Nuit de (h)</label>
           <input type="number" min="0" max="23" value={nightStart} onChange={(e) => setNightStart(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium">Nuit à (h)</label>
+          <label className="mb-1.5 block text-sm font-medium text-card-foreground">Nuit à (h)</label>
           <input type="number" min="0" max="23" value={nightEnd} onChange={(e) => setNightEnd(e.target.value)} className={inputClass} />
         </div>
       </div>
-      <p className="text-xs text-zinc-500">Cumulables : une heure nuit + dimanche cumule les deux. HS : heures supplémentaires retenues sur une vacation (dernières heures). Défaut : 10% nuit, 10% dimanche, 100% férié, 25% HS, nuit 21h-6h.</p>
-      <button type="submit" disabled={isPending} className="flex h-11 items-center justify-center rounded-full bg-zinc-950 px-7 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black">
+      <p className="text-xs text-muted-foreground">Cumulables : une heure nuit + dimanche cumule les deux. HS : heures supplémentaires retenues sur une vacation (dernières heures). Défaut : 10% nuit, 10% dimanche, 100% férié, 25% HS, nuit 21h-6h.</p>
+      <button type="submit" disabled={isPending} className="flex h-11 items-center justify-center rounded-full bg-accent px-7 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50">
         {isPending ? "Enregistrement..." : "Enregistrer"}
       </button>
       {message && (
-        <p className={`rounded-2xl px-4 py-3 text-sm ${isError ? "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"}`}>{message}</p>
+        <p className={`rounded-2xl px-4 py-3 text-sm ${isError ? "bg-loss/12 text-loss dark:bg-loss/20 dark:text-loss" : "bg-profit/12 text-profit dark:bg-profit/20 dark:text-profit"}`}>{message}</p>
       )}
     </form>
   );

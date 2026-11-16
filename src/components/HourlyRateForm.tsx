@@ -35,11 +35,11 @@ export function HourlyRateForm({ initialRate }: { initialRate: number }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 motion-safe:animate-[card-in_450ms_ease-out_both]">
       <div>
         <label
           htmlFor="hourlyRate"
-          className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+          className="mb-1.5 block text-sm font-medium text-card-foreground"
         >
           Taux horaire (€/h)
         </label>
@@ -51,13 +51,13 @@ export function HourlyRateForm({ initialRate }: { initialRate: number }) {
             value={rate}
             onChange={(e) => setRate(e.target.value)}
             placeholder="12,33"
-            className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 pr-12 text-[15px] font-medium text-zinc-950 outline-none transition placeholder:font-normal placeholder:text-zinc-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:bg-white/10"
+            className="w-full rounded-2xl border border-border bg-card px-4 py-3 pr-12 text-[15px] font-medium text-card-foreground outline-none transition placeholder:font-normal placeholder:text-muted-foreground focus:border-accent focus:bg-card focus:ring-4 focus:ring-accent/20"
           />
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-zinc-400">
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
             €/h
           </span>
         </div>
-        <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-500">
+        <p className="mt-1.5 text-xs text-muted-foreground">
           Utilise une virgule ou un point. Ex : 12,33.
         </p>
       </div>
@@ -65,7 +65,7 @@ export function HourlyRateForm({ initialRate }: { initialRate: number }) {
       <button
         type="submit"
         disabled={isPending}
-        className="flex h-11 w-full items-center justify-center rounded-full bg-zinc-950 px-5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:opacity-50 sm:w-auto sm:px-7 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+        className="flex h-11 w-full items-center justify-center rounded-full bg-accent px-5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-50 sm:w-auto sm:px-7"
       >
         {isPending ? "Enregistrement..." : "Enregistrer"}
       </button>
@@ -73,9 +73,7 @@ export function HourlyRateForm({ initialRate }: { initialRate: number }) {
       {message && (
         <p
           className={`rounded-2xl px-4 py-3 text-sm ${
-            isError
-              ? "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"
-              : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+            isError ? "bg-loss/12 text-loss dark:bg-loss/20 dark:text-loss" : "bg-profit/12 text-profit dark:bg-profit/20 dark:text-profit"
           }`}
         >
           {message}

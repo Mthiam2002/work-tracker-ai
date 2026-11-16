@@ -6,7 +6,7 @@ import { brutToNet } from "@/lib/salary";
 import { CalendarView } from "@/components/CalendarView";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
-const TZ = "UTC"; // heures murales : affichage identique partout
+const TZ = "UTC";
 const monthLabelFmt = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: TZ });
 
 function hoursLabel(h: number) {
@@ -67,22 +67,20 @@ export default async function CalendarPage({
   void brutToNet;
 
   return (
-    <main className="mt-4 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+    <main className="mt-4">
       {/* Colonne centrale */}
       <div className="min-w-0">
         {/* Hero */}
-        <section className="relative overflow-hidden rounded-2xl bg-[#16294a] text-white shadow-[0_1px_2px_rgba(16,42,80,0.2)]">
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(100deg, rgba(10,22,44,0.92) 25%, rgba(22,45,85,0.55) 55%, rgba(22,45,85,0.15) 80%), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1600&auto=format&fit=crop') center/cover",
-            }}
-          />
+        <section
+          className="relative overflow-hidden rounded-2xl text-white shadow-[0_1px_2px_rgba(16,42,80,0.12)] motion-safe:animate-[card-in_500ms_ease-out_both]"
+          style={{ background: "linear-gradient(120deg, var(--hero-from) 0%, var(--hero-to) 100%)" }}
+        >
+          <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-accent/30 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-28 left-1/3 h-56 w-56 rounded-full bg-premium/20 blur-3xl" />
           <div className="relative p-6 sm:p-7">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-full bg-black/35 px-4 py-2 text-[12.5px] font-medium text-white backdrop-blur transition hover:bg-black/50"
+              className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[12.5px] font-medium text-white backdrop-blur transition hover:bg-white/20"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-3.5 w-3.5">
                 <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
@@ -103,36 +101,20 @@ export default async function CalendarPage({
                   Suivez vos heures, vos revenus et vos prochaines vacations en un coup d&apos;œil.
                 </p>
               </div>
-              <div className="flex items-center gap-5 rounded-2xl bg-black/35 px-5 py-3.5 backdrop-blur">
-                <span className="flex items-center gap-2">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#6ea8ff" strokeWidth={1.8} className="h-6 w-6">
-                    <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
-                    <path d="M3 9.5h18M8 2.5v4M16 2.5v4" strokeLinecap="round" />
-                  </svg>
-                  <span>
-                    <span className="block text-[14px] font-bold">{shifts.length} vacation{shifts.length > 1 ? "s" : ""}</span>
-                    <span className="block text-[11px] text-white/60">ce mois-ci</span>
-                  </span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#6ea8ff] text-[11px] font-bold text-[#6ea8ff]">
-                    €
-                  </span>
-                  <span>
-                    <span className="block text-[14px] font-bold">{eur.format(monthPay)}</span>
-                    <span className="block text-[11px] text-white/60">brut estimé</span>
-                  </span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#6ea8ff" strokeWidth={1.8} className="h-6 w-6">
-                    <circle cx="12" cy="12" r="8.5" />
-                    <path d="M12 7.5V12l3 2" strokeLinecap="round" />
-                  </svg>
-                  <span>
-                    <span className="block text-[14px] font-bold">{hoursLabel(monthHours)}</span>
-                    <span className="block text-[11px] text-white/60">total estimé</span>
-                  </span>
-                </span>
+              {/* KPI glass */}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end hidden sm:flex">
+                <div className="rounded-xl border border-white/20 bg-white/10 px-5 py-3.5 text-right backdrop-blur-sm">
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-white/65">Vacations ce mois</p>
+                  <p className="tnum mt-1 text-[22px] font-extrabold leading-none">{shifts.length}</p>
+                </div>
+                <div className="rounded-xl border border-white/20 bg-white/10 px-5 py-3.5 text-right backdrop-blur-sm">
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-white/65">Brut estimé</p>
+                  <p className="tnum mt-1 text-[22px] font-extrabold leading-none">{eur.format(monthPay)}</p>
+                </div>
+                <div className="rounded-xl border border-white/20 bg-white/10 px-5 py-3.5 text-right backdrop-blur-sm">
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-white/65">Heures totales</p>
+                  <p className="tnum mt-1 text-[22px] font-extrabold leading-none">{hoursLabel(monthHours)}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -150,88 +132,57 @@ export default async function CalendarPage({
             netRatio={netRatio}
           />
         </div>
-      </div>
 
-      {/* Rail droit */}
-      <div className="flex min-w-0 flex-col gap-5">
-        <section className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(16,42,80,0.06)] dark:bg-zinc-950 dark:border dark:border-white/10 dark:shadow-none">
+        {/* Prochains jours */}
+        <section className="motion-safe:animate-[card-in_500ms_ease-out_both] mt-4 rounded-2xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(16,42,80,0.06)] dark:shadow-none">
           <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-[14px] font-bold text-[#16233a] dark:text-white">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4 text-[#1d6ff2]">
+            <h2 className="flex items-center gap-2 text-[14px] font-bold text-card-foreground">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-4 w-4 text-accent">
                 <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
                 <path d="M3 9.5h18M8 2.5v4M16 2.5v4" strokeLinecap="round" />
               </svg>
               Prochains jours
             </h2>
-            <Link href="/dashboard" className="text-[11.5px] font-semibold text-[#1d6ff2]">
+            <Link href="/dashboard" className="text-[11.5px] font-semibold text-accent transition hover:underline">
               Voir tout →
             </Link>
           </div>
           {upcoming.length === 0 ? (
-            <p className="mt-3 rounded-xl bg-[#f3f6fb] p-4 text-center text-[12px] text-[#8a97ad] dark:bg-white/5">
+            <p className="mt-3 rounded-xl bg-muted p-4 text-center text-[12px] text-muted-foreground">
               Aucune vacation à venir ce mois-ci.
             </p>
           ) : (
-            <ul className="mt-1 divide-y divide-[#f1f4f9] dark:divide-white/5">
+            <ul className="mt-1 divide-y divide-border">
               {upcoming.map((s) => {
                 const b = fmtDayBadge(s.startDate);
                 return (
-                  <li key={s.id}>
-                    <div className="flex items-center gap-3 py-3">
-                      <span className="flex w-11 shrink-0 flex-col items-center rounded-lg bg-[#eef4ff] py-1.5 dark:bg-white/5">
-                        <span className="text-[10px] font-medium capitalize text-[#5b6b82] dark:text-zinc-400">{b.wd}</span>
-                        <span className="text-[19px] font-extrabold leading-none text-[#16233a] dark:text-white">{b.num}</span>
-                        <span className="text-[10px] capitalize text-[#8a97ad]">{b.mon}.</span>
+                  <li key={s.id} className="motion-safe:animate-[card-in_450ms_ease-out_both]">
+                    <div className="flex items-center gap-3 py-3 transition hover:bg-muted/50 group">
+                      <span className="flex w-11 shrink-0 flex-col items-center rounded-lg bg-accent/12 py-1.5">
+                        <span className="text-[10px] font-medium capitalize text-accent">{b.wd}</span>
+                        <span className="text-[19px] font-extrabold leading-none text-card-foreground">{b.num}</span>
+                        <span className="text-[10px] capitalize text-muted-foreground">{b.mon}.</span>
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-2">
-                          <span className="truncate text-[12.5px] font-bold text-[#16233a] dark:text-white">
+                          <span className="tnum truncate text-[12.5px] font-bold text-card-foreground group-hover:text-accent">
                             {hoursLabel(s.totalHours)} - {eur.format(s.estimatedPay)}
                           </span>
-                          <span className="shrink-0 rounded-md bg-[#e8f0fd] px-2 py-0.5 text-[10.5px] font-bold text-[#1d5dbf]">
+                          <span className="shrink-0 rounded-md bg-accent/12 px-2 py-0.5 text-[10.5px] font-bold text-accent transition group-hover:bg-accent/20">
                             Vacation
                           </span>
                         </span>
-                        <span className="mt-0.5 block text-[11px] text-[#8a97ad]">
+                        <span className="mt-0.5 block tnum text-[11px] text-muted-foreground">
                           {fmtHM(s.startTime)} → {fmtHM(s.endTime)} • {hoursLabel(s.totalHours)}
                         </span>
                       </span>
-                      <span className="text-[#9aa7bc]">›</span>
+                      <span className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-accent">›</span>
                     </div>
                   </li>
                 );
               })}
             </ul>
           )}
-        </section>
-
-        <section className="relative min-h-[240px] overflow-hidden rounded-2xl text-white shadow-[0_1px_2px_rgba(16,42,80,0.2)]">
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(20,35,90,0.55) 0%, rgba(20,35,90,0.15) 45%, rgba(10,20,45,0.55) 100%), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop') center/cover",
-            }}
-          />
-          <div className="relative flex min-h-[240px] flex-col p-5">
-            <p className="flex items-center gap-1.5 text-[12px] font-medium text-white/85">
-              <span className="text-[15px]">🌴</span> Prochaine pause
-            </p>
-            <p className="mt-2 text-[21px] font-extrabold leading-tight">
-              Profitez de vos
-              <br />
-              vacances !
-            </p>
-            <p className="mt-1 text-[11.5px] text-white/80">
-              Vous avez {shifts.length} vacation{shifts.length > 1 ? "s" : ""} ce mois-ci.
-            </p>
-            <a
-              href="#detail-mois"
-              className="mt-auto inline-flex w-fit items-center gap-2 rounded-full border border-white/50 px-4 py-2 text-[12px] font-semibold backdrop-blur transition hover:bg-white/15"
-            >
-              Voir le détail →
-            </a>
-          </div>
         </section>
       </div>
     </main>

@@ -65,14 +65,17 @@ export function SidebarNav() {
           <Link
             key={n.href}
             href={n.href}
-            className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-[13.5px] font-medium transition ${
+            aria-current={active ? "page" : undefined}
+            className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13.5px] font-medium transition ${
               active
-                ? "bg-[#e3edfb] text-[#1d5dbf]"
-                : "text-[#5b6b82] hover:bg-[#f1f5fb] hover:text-[#1e2a3b]"
+                ? "bg-accent/12 text-accent shadow-[inset_3px_0_0_var(--accent)]"
+                : "text-muted-foreground hover:bg-muted hover:text-card-foreground"
             }`}
           >
-            <span className={active ? "text-[#1d5dbf]" : "text-[#7b8aa0]"}>{n.icon}</span>
-            {n.label}
+            <span className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center ${active ? "text-accent" : "text-muted-foreground"}`}>
+              {n.icon}
+            </span>
+            <span className="truncate">{n.label}</span>
           </Link>
         );
       })}
